@@ -10,9 +10,11 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
+    person.cpp \
     todolist.cpp
 
 HEADERS += \
+    person.h \
     todolist.h
 
 FORMS += \
