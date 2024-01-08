@@ -11,10 +11,13 @@ CONFIG += c++17
 SOURCES += \
     archivedtask.cpp \
     comment.cpp \
+    firstpage.cpp \
+    login.cpp \
     main.cpp \
     organization.cpp \
     person.cpp \
     project.cpp \
+    signup.cpp \
     team.cpp \
     todolist.cpp \
     unarchivedtask.cpp
@@ -22,14 +25,20 @@ SOURCES += \
 HEADERS += \
     archivedtask.h \
     comment.h \
+    firstpage.h \
+    login.h \
     organization.h \
     person.h \
     project.h \
+    signup.h \
     team.h \
     todolist.h \
     unarchivedtask.h
 
 FORMS += \
+    firstpage.ui \
+    login.ui \
+    signup.ui \
     todolist.ui
 
 # Default rules for deployment.
