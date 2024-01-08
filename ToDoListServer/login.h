@@ -15,6 +15,13 @@ public:
     explicit Login(QWidget *parent = nullptr);
     ~Login();
 
+signals:
+    void username_readed(QString);
+    void password_readed(QString);
+
+private slots:
+    void on_login_page_BTN_accepted();
+
 private:
     Ui::Login *ui;
 };

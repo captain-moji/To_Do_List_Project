@@ -11,6 +11,10 @@
 #include <QJsonObject>
 #include <QDir>
 #include <QDebug>
+#include <QMessageBox>
+#include <todolist.h>
+#include <QCryptographicHash>
+
 
 namespace Ui {
 class FirstPage;
@@ -26,19 +30,25 @@ public:
 
 private slots:
 
-    void on_first_page_signup_BTN_clicked();
-    void username_setter(QString);
-    void password_setter(QString);
-    void name_setter(QString);
-    void question_setter(QString);
-    void answer_setter(QString);
-    void person_saver();
+    void on_first_page_login_BTN_clicked();
+    void username_checker(QString u);
+    void password_checker(QString p);
 
 private:
-    Person temp_person;
-    void make_data_folder();
-    Ui::FirstPage *ui;
 
+    Person temp_person;
+    bool pass_correct;
+    bool user_correct;
+    QString username;
+    QString password;
+    QString id;
+
+    void make_data_folder();
+    void make_admin_file();
+
+    Ui::FirstPage *ui;
+signals:
+    void who_logged_in(QString id);
 };
 
 #endif // FIRSTPAGE_H

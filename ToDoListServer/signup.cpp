@@ -20,11 +20,6 @@ bool Signup::isPassCorrect(QString pass)
     std::string str;
     str = pass.toStdString();
 
-    //std::string str = "Hello world";
-
-    //QString qstr = QString::fromStdString(str);
-    //std::string str =qs.toUtf8().constData();
-
     if (str.length() < 8) {
         return false;
     }
@@ -88,7 +83,7 @@ void Signup::on_signup_ok_BTN_clicked()
 
     else if (Signup::isPassCorrect (ui->signup_password_line_edit->text()) == false)
     {
-        QMessageBox ::information( this, "Error!" , "Password must Have: \na a-z letter\na A-Z letter\na Number\n8-12 digits");
+        QMessageBox ::information( this, "Error!" , "Password must Have: \na a-z letter\na A-Z letter\na Number\n8-12 characters");
     }
     else if(isUsernameExsist(ui->signup_username_line_edit->text()) == true)
     {
