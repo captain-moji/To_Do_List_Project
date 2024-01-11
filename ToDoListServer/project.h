@@ -2,32 +2,33 @@
 #define PROJECT_H
 #include <QString>
 #include <person.h>
-#include <archivedtask.h>
-#include <unarchivedtask.h>
+#include <task.h>
 #include <QVector>
 
 class Project
 {
 private:
     QString proj_name;
-    int proj_admi_id;
+    QString proj_admin_id;
     QVector<Person> proj_persons;
-    QVector<ArchivedTask> proj_archived_tasks;
-    QVector<UnarchivedTask> proj_unarchived_task;
+    QVector<Task> proj_archived_tasks;
+    QVector<Task> proj_unarchived_task;
 
 public:
     Project();
-    Project(QString, int);
+    Project(QString, QString);
     Project(const Project &);
     ~Project();
     void projSetName(QString);
     QString projGetName();
+    void projSetAdminId(QString);
+    QString projGetAdminId();
     QVector<Person> projGetPersons();
     const QVector<Person> projGetPersons() const;
-    QVector<ArchivedTask> projGetArchivedTasks();
-    const QVector<ArchivedTask> projGetArchivedTasks() const;
-    QVector<UnarchivedTask> projGetUnarchivedTasks();
-    const QVector<UnarchivedTask> projGetUnarchivedTasks() const;
+    QVector<Task> projGetArchivedTasks();
+    const QVector<Task> projGetArchivedTasks() const;
+    QVector<Task> projGetUnarchivedTasks();
+    const QVector<Task> projGetUnarchivedTasks() const;
 };
 
 #endif // PROJECT_H
