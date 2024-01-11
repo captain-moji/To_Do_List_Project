@@ -88,7 +88,7 @@ void FirstPage::username_checker(QString f_user)
         else
         {
             user_correct = 0;
-            QMessageBox ::information( this, "Error!" , "this user not found!");
+            QMessageBox ::warning( this, "Error!" , "this user not found!");
         }
     }
 }
@@ -115,6 +115,6 @@ void FirstPage::password_checker(QString p)
         user_correct = 0;
         username = "";
         password = "";
-        QMessageBox ::information( this, "Error!" , "Password is NOT Correct!");
+        QMessageBox ::warning( this, "Error!" , "Password is NOT Correct!");
     }
 }
