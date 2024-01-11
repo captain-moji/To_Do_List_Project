@@ -9,7 +9,10 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    archivedtask.cpp \
+    orgdialog.cpp \
+    orgperson.cpp \
+    searchthread.cpp \
+    task.cpp \
     comment.cpp \
     firstpage.cpp \
     login.cpp \
@@ -19,11 +22,14 @@ SOURCES += \
     project.cpp \
     signup.cpp \
     team.cpp \
+    teamperson.cpp \
     todolist.cpp \
-    unarchivedtask.cpp
 
 HEADERS += \
-    archivedtask.h \
+    orgdialog.h \
+    orgperson.h \
+    searchthread.h \
+    task.h \
     comment.h \
     firstpage.h \
     login.h \
@@ -32,12 +38,13 @@ HEADERS += \
     project.h \
     signup.h \
     team.h \
+    teamperson.h \
     todolist.h \
-    unarchivedtask.h
 
 FORMS += \
     firstpage.ui \
     login.ui \
+    orgdialog.ui \
     signup.ui \
     todolist.ui
 
