@@ -2,10 +2,10 @@
 
 Organization::Organization() {}
 
-Organization::Organization(QString n, int i)
-    : org_name(n), org_admin_id(i)
+Organization::Organization(QString n)
+    : org_name(n)
 {
-    // A code to add a person as an admin by searching in the PERSONS.json
+
 }
 
 Organization::Organization(const Organization & org)
@@ -28,44 +28,14 @@ QString Organization::orgGetName() const
     return org_name;
 }
 
-void Organization::orgSetAdminId(int i)
-{
-    org_admin_id = i;
-}
-
-int Organization::orgGetAdminId()
-{
-    return org_admin_id;
-}
-
-QVector<Person> &Organization::orgGetPersons()
+QVector<OrgPerson> &Organization::orgGetPersons()
 {
     return org_persons;
 }
 
-const QVector<Person> &Organization::orgGetPersons() const
+const QVector<OrgPerson> &Organization::orgGetPersons() const
 {
     return org_persons;
-}
-
-QVector<ArchivedTask> &Organization::orgGetArchivedTasks()
-{
-    return org_archive_tasks;
-}
-
-const QVector<ArchivedTask> &Organization::orgGetArchivedTasks() const
-{
-    return org_archive_tasks;
-}
-
-QVector<UnarchivedTask> &Organization::orgGetUnarchivedTasks()
-{
-    return org_unarchived_task;
-}
-
-const QVector<UnarchivedTask> &Organization::orgGetUnarchivedTasks() const
-{
-    return org_unarchived_task;
 }
 
 QVector<Team> &Organization::orgGetTeams()

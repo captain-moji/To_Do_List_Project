@@ -2,8 +2,8 @@
 
 Team::Team() {}
 
-Team::Team(QString n, int i)
-    : team_name(n), team_admin_id(i)
+Team::Team(QString n, QString  i)
+    : team_name(n)
 {
     // A code to add a person as an admin by searching in the PERSONS.json
 }
@@ -28,23 +28,22 @@ QString Team::teamGetName() const
     return team_name;
 }
 
-void Team::teamSetAdminId(int i)
+void Team::teamSetId(QString i)
 {
-    team_admin_id = i;
-
+    team_id = i;
 }
 
-int Team::teamGetAdminId()
+QString Team::teamGetid() const
 {
-    return team_admin_id;
+    return team_id;
 }
 
-QVector<Person> &Team::teamGetPersons()
+QVector<TeamPerson> &Team::teamGetPersons()
 {
     return team_persons;
 }
 
-const QVector<Person> &Team::teamGetPersons() const
+const QVector<TeamPerson> &Team::teamGetPersons() const
 {
     return team_persons;
 }

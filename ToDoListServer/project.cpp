@@ -2,8 +2,8 @@
 
 Project::Project() {}
 
-Project::Project(QString n, int i)
-    : proj_name(n), proj_admi_id(i)
+Project::Project(QString n, QString i)
+    : proj_name(n), proj_admin_id(i)
 {
     // A code to add a person as an admin by searching in the PERSONS.json
 }
@@ -28,6 +28,16 @@ QString Project::projGetName()
     return proj_name;
 }
 
+void Project::projSetAdminId(QString i)
+{
+    proj_admin_id = i;
+}
+
+QString Project::projGetAdminId()
+{
+    return proj_admin_id;
+}
+
 QVector<Person> Project::projGetPersons()
 {
     return proj_persons;
@@ -38,22 +48,22 @@ const QVector<Person> Project::projGetPersons() const
     return proj_persons;
 }
 
-QVector<ArchivedTask> Project::projGetArchivedTasks()
+QVector<Task> Project::projGetArchivedTasks()
 {
     return proj_archived_tasks;
 }
 
-const QVector<ArchivedTask> Project::projGetArchivedTasks() const
+const QVector<Task> Project::projGetArchivedTasks() const
 {
     return proj_archived_tasks;
 }
 
-QVector<UnarchivedTask> Project::projGetUnarchivedTasks()
+QVector<Task> Project::projGetUnarchivedTasks()
 {
     return proj_unarchived_task;
 }
 
-const QVector<UnarchivedTask> Project::projGetUnarchivedTasks() const
+const QVector<Task> Project::projGetUnarchivedTasks() const
 {
     return proj_unarchived_task;
 }

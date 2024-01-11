@@ -79,16 +79,16 @@ void Signup::on_signup_ok_BTN_clicked()
     if (ui->signup_username_line_edit->text()=="" || ui->signup_password_line_edit->text()=="" || ui->signup_name_line_edit->text()=="" || ui->signup_answer_line_edit->text() ==""
         || ui->signup_question_selector->currentText() == "select ...")
     {
-        QMessageBox ::information( this, "Error!" , "All fields are required!");
+        QMessageBox ::warning(this, "Error!" , "All fields are required!");
     }
 
     else if (Signup::isPassCorrect (ui->signup_password_line_edit->text()) == false)
     {
-        QMessageBox ::information( this, "Error!" , "Password must Have: \na a-z letter\na A-Z letter\na Number\n8-12 characters");
+        QMessageBox ::warning( this, "Error!" , "Password must Have: \na a-z letter\na A-Z letter\na Number\n8-12 characters");
     }
     else if(isUsernameExsist(ui->signup_username_line_edit->text()) == true)
     {
-        QMessageBox ::information( this, "Error!" , "This Username is allready exsist!\nplease take another!");
+        QMessageBox ::warning( this, "Error!" , "This Username is allready exsist!\nplease take another!");
     }
     else
     {
