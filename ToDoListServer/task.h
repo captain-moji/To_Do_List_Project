@@ -1,10 +1,10 @@
-#ifndef ArchivedTASK_H
-#define ArchivedTASK_H
+#ifndef TASK_H
+#define TASK_H
 #include <QString>
 #include <comment.h>
 #include <QVector>
 
-class ArchivedTask
+class Task
 {
 private:
     QString task_name;
@@ -14,10 +14,10 @@ private:
     QVector<Comment> comments;
 
 public:
-    ArchivedTask();
-    ArchivedTask(QString, QString, QString, QString);
-    ArchivedTask(const ArchivedTask&);
-    ~ArchivedTask();
+    Task();
+    Task(QString, QString, QString, QString);
+    Task(const Task&);
+    ~Task();
     void taskSetName(QString);
     QString taskGetName() const;
     void taskSetDescription(QString);
@@ -31,4 +31,4 @@ public:
 
 };
 
-#endif // ArchivedTASK_H
+#endif // TASK_H
