@@ -18,7 +18,7 @@ public:
     void orgPerSetID(QString);
     bool orgPerGetIsAdmin() const;
     void orgPerSetIsAdmin(bool);
-
+    QString orgIdGenerator();
 };
 
 #endif // ORGPERSON_H

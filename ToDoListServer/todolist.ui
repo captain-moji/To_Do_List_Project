@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>641</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -41,17 +41,26 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QListWidget" name="todolist_organizations_list"/>
+        <widget class="QListWidget" name="todolist_organizations_list">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="sortingEnabled">
+          <bool>false</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>New Item</string>
+          </property>
+         </item>
+        </widget>
        </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QWidget" name="widget_6" native="true">
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <widget class="QWidget" name="widget_4" native="true">
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <widget class="QWidget" name="widget_6" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
            <widget class="QPushButton" name="sort_organizations_BTN">
             <property name="text">
@@ -59,14 +68,14 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QLineEdit" name="search_organizations_qstring">
+            <property name="placeholderText">
+             <string>search</string>
+            </property>
+           </widget>
+          </item>
          </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="search_organizations_qstring">
-         <property name="placeholderText">
-          <string>search</string>
-         </property>
         </widget>
        </item>
       </layout>
@@ -80,32 +89,46 @@
         <height>50</height>
        </size>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QWidget" name="widget_5" native="true">
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QPushButton" name="add_organization_BTN">
-            <property name="text">
-             <string>add organization</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="edit_organization_BTN">
-            <property name="text">
-             <string>edit organization</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="remove_organization_BTN">
-            <property name="text">
-             <string>remove organization</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+        <widget class="QPushButton" name="add_organization_BTN">
+         <property name="text">
+          <string>add organization</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="edit_organization_BTN">
+         <property name="text">
+          <string>edit organization</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="remove_organization_BTN">
+         <property name="text">
+          <string>remove organization</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="widget_7" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QPushButton" name="add_new_user_BTN">
+         <property name="text">
+          <string>all users</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_2">
+         <property name="text">
+          <string>edit server infos</string>
+         </property>
         </widget>
        </item>
       </layout>
@@ -119,7 +142,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>26</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
