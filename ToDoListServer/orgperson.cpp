@@ -36,3 +36,10 @@ void OrgPerson::orgPerSetIsAdmin(bool is)
 {
     org_is_admin = is;
 }
+
+QString OrgPerson:: orgIdGenerator()
+{
+    QDateTime currentDateTime = QDateTime::currentDateTime();
+    QString ThisTime = currentDateTime.toString("ddhhmmss");
+    return ThisTime;
+}

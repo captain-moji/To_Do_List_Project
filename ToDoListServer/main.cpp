@@ -4,11 +4,15 @@
 
 #include <QApplication>
 
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    FirstPage f;
-    f.show();
+    //FirstPage f;
+    //f.show();
+
+    ToDoList t;
+    t.show();
 
     return a.exec();
 }

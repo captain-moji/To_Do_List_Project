@@ -3,6 +3,10 @@
 
 #include <QDialog>
 #include <QMessageBox>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QDir>
 
 namespace Ui {
 class OrgDialog;
@@ -21,7 +25,7 @@ signals:
 
 private slots:
     void on_page_BTN_accepted();
-
+    bool is_org_exsist(QString);
 private:
     Ui::OrgDialog *ui;
 };
