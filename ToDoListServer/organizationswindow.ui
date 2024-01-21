@@ -70,8 +70,23 @@
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QTabWidget" name="tabWidget">
+         <property name="tabPosition">
+          <enum>QTabWidget::North</enum>
+         </property>
+         <property name="tabShape">
+          <enum>QTabWidget::Triangular</enum>
+         </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
+         </property>
+         <property name="elideMode">
+          <enum>Qt::ElideNone</enum>
+         </property>
+         <property name="documentMode">
+          <bool>false</bool>
+         </property>
+         <property name="movable">
+          <bool>true</bool>
          </property>
          <widget class="QWidget" name="Persons">
           <attribute name="title">
@@ -217,7 +232,54 @@
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="QListView" name="Teams_list_view"/>
+            <widget class="QListWidget" name="teams_list_widget"/>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget_2" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QPushButton" name="add_team_BTN">
+                <property name="text">
+                 <string>add a team</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="edit_team_name_BTN">
+                <property name="text">
+                 <string>edit team name</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="remove_team_BTN">
+                <property name="text">
+                 <string>remove team</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget_4" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <widget class="QPushButton" name="sort_teams_BTN">
+                <property name="text">
+                 <string>Sort teams</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="search_teams_line_edit">
+                <property name="placeholderText">
+                 <string>search ...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -227,7 +289,37 @@
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QListView" name="Projects_list_view"/>
+            <widget class="QListWidget" name="projects_list_widget"/>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget_3" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_6">
+              <item>
+               <widget class="QPushButton" name="add_project_BTN">
+                <property name="text">
+                 <string>add new project</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="edit_project_BTN">
+                <property name="text">
+                 <string>edit project</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="remove_project_BTN">
+                <property name="text">
+                 <string>remove project</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget_5" native="true"/>
            </item>
           </layout>
          </widget>
