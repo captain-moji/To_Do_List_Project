@@ -1,7 +1,6 @@
 #include "todolist.h"
 #include "ui_todolist.h"
 #include <orgdialog.h>
-#include <searchthread.h>
 #include <QFile>
 #include <QDir>
 
@@ -12,8 +11,7 @@ ToDoList::ToDoList(QWidget *parent)
     ui->setupUi(this);
     makeOrganizationsFile();
     loadOrganizations();
-    SearchThread *thread = new SearchThread(this);
-    thread->start();
+
 }
 
 ToDoList::~ToDoList()
@@ -28,9 +26,6 @@ void ToDoList::makeOrgFiles(QString o)
     if (!sDir2.exists())
     {
         sDir2.mkpath(".");
-    } else
-    {
-
     }
 
     QString sPath3 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + o + "/ORG_PROJECTS" ;
@@ -85,9 +80,7 @@ void ToDoList::makeOrganizationsFile()
         n_file.open(QFile::WriteOnly);
         n_file.close();
     }
-
 }
-
 
 void ToDoList::on_add_organization_BTN_clicked()
 {
@@ -102,7 +95,6 @@ void ToDoList::add_organization(QString item)
     saveOrganizations();
 }
 
-
 void ToDoList::on_edit_organization_BTN_clicked()
 {
     OrgDialog *temp_org_dialog = new OrgDialog(this);
@@ -113,30 +105,36 @@ void ToDoList::on_edit_organization_BTN_clicked()
 void ToDoList::edit_organization(QString a)
 {
     QString old_name ;
-    QString new_name = a + ".json";
     QListWidgetItem *item = ui->todolist_organizations_list->currentItem();
-    if (item != nullptr) {
-        old_name= item->text() + ".json";
+    if (item != nullptr)
+    {
+        old_name= item->text();
         item->setText(a);
     }
-    QFile file(old_name);
-    file.rename(new_name);
-    file.close();
+
+    QString path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + old_name;
+    QString newpath = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + a;
+
+    qDebug() << "path is:" << path;
+    QDir sDir(path);
+    if(sDir.exists())
+    {
+        qDebug() << "path is exsit" ;
+        sDir.rename(path,newpath);
+    }
     saveOrganizations();
 }
-
 
 void ToDoList::on_remove_organization_BTN_clicked()
 {
     QListWidgetItem *item = ui->todolist_organizations_list->currentItem();
-    if (item != nullptr) {
+    QString filename = item->text();
+    if (item) {
         delete item;
     }
-
+    removeOrgFiles(filename);
     saveOrganizations();
-    removeOrgFiles(item->text());
 }
-
 
 void ToDoList::saveOrganizations()
 {
@@ -155,7 +153,6 @@ void ToDoList::saveOrganizations()
     }
 
 }
-
 
 void ToDoList::loadOrganizations()
 {
@@ -187,7 +184,12 @@ void ToDoList::searchOrganizations()
             item->setHidden(true);
         }
     }
+}
 
+
+void ToDoList::on_search_organizations_qstring_textChanged(const QString &arg1)
+{
+    searchOrganizations();
 }
 
 
@@ -219,4 +221,24 @@ void ToDoList::on_actionAbout_triggered()
 {
     QMessageBox ::information( this, "About" ,"ToDoList Manager\nVersion 1.0.0\nCreated by Moji & Mammad");;
 }
+
+
+void ToDoList::on_todolist_organizations_list_itemDoubleClicked(QListWidgetItem *item)
+{
+    OrganizationsWindow * w = new OrganizationsWindow(this);
+    connect (this,SIGNAL(org_name_signal(QString)),w,SLOT(this_org_maker(QString)));
+    emit org_name_signal(item->text());
+    w->show();
+    w->all_org_persons_display();
+}
+
+
+void ToDoList::on_add_new_user_BTN_clicked()
+{
+    allServerUsers* s = new allServerUsers(this);
+    s->show();
+}
+
+
+
 
