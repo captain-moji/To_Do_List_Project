@@ -239,6 +239,7 @@ void ToDoList::on_todolist_organizations_list_itemDoubleClicked(QListWidgetItem 
     w->show();
     w->loadAllOrgPersons();
     w->loadAllOrgTeams();
+    w->loadAllOrgProjects();
 }
 
 
