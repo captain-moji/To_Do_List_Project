@@ -22,6 +22,7 @@ public:
     QString teamGetid() const;
     QVector<TeamPerson>& teamGetPersons();
     const QVector<TeamPerson>& teamGetPersons() const;
+    QString teamIdGenerator() const;
 };
 
 #endif // TEAM_H

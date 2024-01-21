@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     allserverusers.cpp \
+    organizationpersonswindow.cpp \
     organizationswindow.cpp \
     orgdialog.cpp \
     orgperson.cpp \
@@ -24,10 +25,12 @@ SOURCES += \
     signup.cpp \
     team.cpp \
     teamperson.cpp \
+    teamswindow.cpp \
     todolist.cpp \
 
 HEADERS += \
     allserverusers.h \
+    organizationpersonswindow.h \
     organizationswindow.h \
     orgdialog.h \
     orgperson.h \
@@ -41,15 +44,18 @@ HEADERS += \
     signup.h \
     team.h \
     teamperson.h \
+    teamswindow.h \
     todolist.h \
 
 FORMS += \
     allserverusers.ui \
     firstpage.ui \
     login.ui \
+    organizationpersonswindow.ui \
     organizationswindow.ui \
     orgdialog.ui \
     signup.ui \
+    teamswindow.ui \
     todolist.ui
 
 # Default rules for deployment.

@@ -7,6 +7,9 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QDir>
+#include <QSet>
+#include <QJsonObject>
+
 
 namespace Ui {
 class OrgDialog;
@@ -19,13 +22,15 @@ class OrgDialog : public QDialog
 public:
     explicit OrgDialog(QWidget *parent = nullptr);
     ~OrgDialog();
+    void set_text(QString);
+    QString type;
+    QString ORG;
 
 signals:
-    void organization_readed(QString);
-
+    void name_readed(QString);
 private slots:
     void on_page_BTN_accepted();
-    bool is_org_exsist(QString);
+    bool is_exsist(QString);
 private:
     Ui::OrgDialog *ui;
 };

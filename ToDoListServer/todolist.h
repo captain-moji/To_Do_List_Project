@@ -1,6 +1,7 @@
 #ifndef TODOLIST_H
 #define TODOLIST_H
 
+
 #include <QMainWindow>
 #include <person.h>
 #include <QString>
@@ -17,6 +18,7 @@
 #include <organizationswindow.h>
 #include <QListWidget>
 #include <allserverusers.h>
+#include <orgdialog.h>
 
 
 QT_BEGIN_NAMESPACE

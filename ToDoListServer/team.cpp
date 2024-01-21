@@ -47,3 +47,11 @@ const QVector<TeamPerson> &Team::teamGetPersons() const
 {
     return team_persons;
 }
+
+
+QString Team::teamIdGenerator() const
+{
+    QDateTime currentDateTime = QDateTime::currentDateTime();
+    QString ThisTime = currentDateTime.toString("hhmmss");
+    return ThisTime;
+}

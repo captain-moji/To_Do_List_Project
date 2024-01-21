@@ -16,8 +16,8 @@ public:
     ~TeamPerson();
     QString teamPerGetId ()const;
     void teamPerSetID(QString);
-    bool teamPerGetIsAdmin();
-    void teamPerSetIsAdmin();
+    bool teamPerGetIsAdmin() const;
+    void teamPerSetIsAdmin(bool);
 };
 
 #endif // TEAMPERSON_H
