@@ -1,7 +1,6 @@
 #include "allserverusers.h"
 #include "ui_allserverusers.h"
 #include <organizationswindow.h>
-#include <searchthread.h>
 
 allServerUsers::allServerUsers(QWidget *parent)
     : QMainWindow(parent)
