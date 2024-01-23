@@ -574,5 +574,70 @@ void ProjectsWindow::search_project_teams()
 }
 
 
+void ProjectsWindow::on_add_new_task_BTN_clicked()
+{
+    TaskWindow * w = new TaskWindow (this);
+    connect (w,SIGNAL(new_task_maked(Task)),this,SLOT(project_task_maker(Task)));
+    w->typeSetter("NEW_TASK");
+    w->show();
 
+}
+
+void ProjectsWindow::project_task_maker(Task maked_task)
+{
+    AddNewTaskToProject(maked_task);
+    QTreeWidgetItem *item = new QTreeWidgetItem(ui->project_tasks_tree_widget);
+    item->setText(0, maked_task.taskGetTitle());
+    item->setText(1, maked_task.taskGetOwnerName());
+    item->setText(2, maked_task.taskGetDate());
+    item->setText(3, maked_task.taskGetPriority());
+    item->setText(4, maked_task.taskGetIsArchived() ? "YES" : "NO");
+
+    ui->project_tasks_tree_widget->addTopLevelItem(item);
+}
+
+
+void ProjectsWindow::AddNewTaskToProject(Task new_task)
+{
+    QString folder_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org + "/ORG_PROJECTS/" + this_project.projGetName() +"/PROJECT_TASKS/"+ new_task.taskGetTitle();
+    QDir sDir(folder_Path);
+    if (!sDir.exists())
+    {
+        sDir.mkpath(".");
+    }
+
+    QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org+ "/ORG_PROJECTS/" + this_project.projGetName() +"/PROJECT_TASKS.json" ;
+
+    QFile file(file_Path);
+    file.open(QIODevice::ReadWrite);
+    QByteArray jsonData2 = file.readAll();
+    QJsonDocument jsonDoc2 = QJsonDocument::fromJson(jsonData2);
+    QJsonArray jsonArray2 = jsonDoc2.array();
+
+    for (int i = 0; i < jsonArray2.size(); ++i)
+    {
+        QJsonObject jsonObject = jsonArray2.at(i).toObject();
+        if (jsonObject.value("task_title").toString() == new_task.taskGetTitle())
+        {
+            file.close();
+            return;
+        }
+    }
+
+    QJsonObject newTaskObject;
+    newTaskObject["task_title"] = new_task.taskGetTitle();
+    newTaskObject["task_description"] = new_task.taskGetDescription();
+    newTaskObject["task_owner_type"] = new_task.taskGetOwnerType();
+    newTaskObject["task_owner_name"] = new_task.taskGetOwnerName();
+    newTaskObject["task_owner_id"] = new_task.taskGetOwnerID();
+    newTaskObject["task_date"] = new_task.taskGetDate();
+    newTaskObject["task_is_archived"] = new_task.taskGetIsArchived();
+
+    jsonArray2.append(newTaskObject);
+    jsonDoc2.setArray(jsonArray2);
+    file.resize(0);
+    file.write(jsonDoc2.toJson());
+    file.close();
+
+}
 

@@ -7,7 +7,6 @@ OrganizationsWindow::OrganizationsWindow(QWidget *parent)
 {
     makeAllpersonsFile();
     ui->setupUi(this);
-    loadAllOrgPersons();
 }
 
 
@@ -88,10 +87,7 @@ void OrganizationsWindow::removeUserFromOrganization(QString user)
 {
     QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org.orgGetName()+"/ORG_PERSONS.json";
     QFile file(file_Path);
-    if (!file.open(QIODevice::ReadWrite))
-    {
-        return;
-    }
+    file.open(QIODevice::ReadWrite);
 
     QByteArray jsonData = file.readAll();
     QJsonDocument doc(QJsonDocument::fromJson(jsonData));
@@ -130,6 +126,30 @@ void OrganizationsWindow::removeUserFromOrganization(QString user)
         emit org_name_signal(this_org.orgGetName());
         w->removeTeamPerson(user);
     }
+
+
+    QString file_Path3 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org.orgGetName()+"/ORG_PROJECTS.json";
+    QFile file3(file_Path3);
+    if (!file3.open(QIODevice::ReadOnly)) {
+        return;
+    }
+    QByteArray jsonData3 = file3.readAll();
+    file3.close();
+
+    QJsonDocument doc3 = QJsonDocument::fromJson(jsonData3);
+    QJsonArray jsonArray3 = doc3.array();
+    for (int i = 0; i < jsonArray3.size(); ++i)
+    {
+        QJsonObject jsonObject3 = jsonArray3.at(i).toObject();
+        QString name = jsonObject3.value("project_name").toString();
+        ProjectsWindow * w = new ProjectsWindow(this);
+        connect (this,SIGNAL(project_name_signal(QString)),w,SLOT(this_project_maker(QString)));
+        connect (this,SIGNAL(org_name_signal(QString)),w,SLOT(this_org_maker(QString)));
+        emit project_name_signal(name);
+        emit org_name_signal(this_org.orgGetName());
+        w->removeProjectPerson(user);
+    }
+
 }
 
 
@@ -177,9 +197,7 @@ void OrganizationsWindow::promoteToAdmin(QString user)
 
     QString file_Path2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org.orgGetName()+"/ORG_TEAMS.json";
     QFile file2(file_Path2);
-    if (!file2.open(QIODevice::ReadOnly)) {
-        return;
-    }
+    file2.open(QIODevice::ReadOnly);
     QByteArray jsonData2 = file2.readAll();
     file2.close();
 
@@ -951,6 +969,7 @@ void OrganizationsWindow::makeAllProjectsFile(QString new_project)
     QString file_Path1 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org.orgGetName()+ "/ORG_PROJECTS/" + new_project +"/PROJECT_PERSON.json" ;
     QString file_Path2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org.orgGetName()+ "/ORG_PROJECTS/" + new_project +"/PROJECT_TASKS.json" ;
     QString file_Path3 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org.orgGetName()+ "/ORG_PROJECTS/" + new_project +"/PROJECT_TEAMS.json" ;
+    QString file_Path4 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org.orgGetName()+ "/ORG_PROJECTS/" + new_project +"/PROJECT_TASKS" ;
 
     QFile file1(file_Path1);
     if (!file1.exists()) {
@@ -969,6 +988,11 @@ void OrganizationsWindow::makeAllProjectsFile(QString new_project)
         file3.open(QIODevice::WriteOnly);
     }
     file3.close();
+    QDir sDir(file_Path4);
+    if (!sDir.exists())
+    {
+        sDir.mkpath(".");
+    }
 }
 
 

@@ -8,7 +8,7 @@
 #include <project.h>
 #include "organizationpersonswindow.h"
 #include <QTreeWidgetItem>
-
+#include <taskwindow.h>
 
 namespace Ui {
 class ProjectsWindow;
@@ -26,10 +26,15 @@ public:
     void removeProjectPerson(QString);
     void changeProjectAdmin(QString);
     void thisProjectShowAdmin();
+
     void loadOrgTeamsComboBox();
     void addTeamToProject(QString);
     void loadProjectTeams();
     void removeTeamfromProject(QString);
+
+    void AddNewTaskToProject(Task);
+
+
 
 private slots:
 
@@ -52,6 +57,10 @@ private slots:
     void on_project_teams_search_line_edit_textChanged(const QString &arg1);
 
     void on_search_line_edit_textChanged(const QString &arg1);
+
+    void on_add_new_task_BTN_clicked();
+
+    void project_task_maker(Task);
 
 private:
     void search_project_teams();
