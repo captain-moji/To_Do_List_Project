@@ -151,7 +151,7 @@ void ToDoList::saveOrganizations()
     QJsonDocument jsonDoc(jsonArray);
     QString file_Path = QDir::currentPath() + "/APPDATA/ALL_ORGANIZATIONS.json";
     QFile file(file_Path);
-    if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (file.open(QIODevice::WriteOnly))
     {
         file.write(jsonDoc.toJson());
         file.close();
@@ -236,9 +236,11 @@ void ToDoList::on_todolist_organizations_list_itemDoubleClicked(QListWidgetItem 
     OrganizationsWindow * w = new OrganizationsWindow(this);
     connect (this,SIGNAL(org_name_signal(QString)),w,SLOT(this_org_maker(QString)));
     emit org_name_signal(item->text());
-    w->show();
+    w->setWindowTitle("Organization Management");
     w->loadAllOrgPersons();
     w->loadAllOrgTeams();
+    w->loadAllOrgProjects();
+    w->show();
 }
 
 

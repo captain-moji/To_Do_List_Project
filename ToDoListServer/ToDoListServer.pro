@@ -14,6 +14,7 @@ SOURCES += \
     organizationswindow.cpp \
     orgdialog.cpp \
     orgperson.cpp \
+    projectswindow.cpp \
     task.cpp \
     comment.cpp \
     firstpage.cpp \
@@ -23,6 +24,7 @@ SOURCES += \
     person.cpp \
     project.cpp \
     signup.cpp \
+    taskwindow.cpp \
     team.cpp \
     teamperson.cpp \
     teamswindow.cpp \
@@ -34,6 +36,7 @@ HEADERS += \
     organizationswindow.h \
     orgdialog.h \
     orgperson.h \
+    projectswindow.h \
     task.h \
     comment.h \
     firstpage.h \
@@ -42,6 +45,7 @@ HEADERS += \
     person.h \
     project.h \
     signup.h \
+    taskwindow.h \
     team.h \
     teamperson.h \
     teamswindow.h \
@@ -54,7 +58,9 @@ FORMS += \
     organizationpersonswindow.ui \
     organizationswindow.ui \
     orgdialog.ui \
+    projectswindow.ui \
     signup.ui \
+    taskwindow.ui \
     teamswindow.ui \
     todolist.ui
 

@@ -40,6 +40,7 @@ void TeamsWindow::on_teams_add_person_BTN_clicked()
     OrganizationPersonsWindow *o = new OrganizationPersonsWindow(this);
     connect (o,SIGNAL(org_person_selected(QString)),this,SLOT(add_team_person(QString)));
     o->ORG = this_org;
+    o->setWindowTitle("Add New Person");
     o->show();
     o->loadOrgPersons();
 }

@@ -5,7 +5,6 @@
 #include "organizationpersonswindow.h"
 #include <team.h>
 #include <QTreeWidgetItem>
-#include <QThread>
 
 namespace Ui {
 class TeamsWindow;
