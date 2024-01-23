@@ -236,6 +236,7 @@ void ToDoList::on_todolist_organizations_list_itemDoubleClicked(QListWidgetItem 
     OrganizationsWindow * w = new OrganizationsWindow(this);
     connect (this,SIGNAL(org_name_signal(QString)),w,SLOT(this_org_maker(QString)));
     emit org_name_signal(item->text());
+    w->setWindowTitle("Organization Management");
     w->show();
     w->loadAllOrgPersons();
     w->loadAllOrgTeams();

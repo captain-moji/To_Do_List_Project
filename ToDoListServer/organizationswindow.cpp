@@ -228,6 +228,7 @@ void OrganizationsWindow::on_org_page_add_person_BTN_clicked()
     allServerUsers * a = new allServerUsers(this);
     connect (a,SIGNAL(user_selected(QString)),this,SLOT(add_new_person_to_organization(QString)));
     a->btn_disable();
+    a->setWindowTitle("Add New Person");
     a->show();
 }
 
@@ -355,7 +356,6 @@ void OrganizationsWindow::search_org_user()
 }
 
 
-
 void OrganizationsWindow::on_org_users_search_line_edit_textChanged(const QString &arg1)
 {
     on_is_org_admin_checkbox_stateChanged(0);
@@ -420,6 +420,7 @@ void OrganizationsWindow::on_add_team_BTN_clicked()
     temp_dialog->ORG = this_org.orgGetName();
     temp_dialog->set_text("Enter name of new team:");
     connect(temp_dialog, SIGNAL(name_readed(QString)),this,SLOT(add_new_team_to_organization(QString)));
+    temp_dialog->setWindowTitle("New Team Name");
     temp_dialog->show();
 }
 
@@ -572,6 +573,7 @@ void OrganizationsWindow::on_edit_team_name_BTN_clicked()
             temp_dialog->ORG = this_org.orgGetName();
             temp_dialog->set_text("Enter name of new team:");
             connect(temp_dialog, SIGNAL(name_readed(QString)),this, SLOT(edit_team_in_organization(QString)));
+            temp_dialog->setWindowTitle("Edit Team Name");
             temp_dialog->show();
     }
     else
@@ -663,7 +665,6 @@ QString OrganizationsWindow::getTeamIdByName(QString name)
 
 void OrganizationsWindow::on_teams_list_widget_itemDoubleClicked(QListWidgetItem *item)
 {
-
     TeamsWindow * t = new TeamsWindow (this);
     connect (this,SIGNAL(team_name_signal(QString)),t,SLOT(this_team_maker(QString)));
     connect (this,SIGNAL(org_name_signal(QString)),t,SLOT(this_org_maker(QString)));
@@ -671,6 +672,7 @@ void OrganizationsWindow::on_teams_list_widget_itemDoubleClicked(QListWidgetItem
     emit team_name_signal(item->text());
     emit org_name_signal(this_org.orgGetName());
     emit team_id_signal(getTeamIdByName(item->text()));
+    t->setWindowTitle("Team Management");
     t->show();
     t->loadTeamPersons();
 }
@@ -710,6 +712,7 @@ void OrganizationsWindow::on_add_project_BTN_clicked()
     temp_dialog->ORG = this_org.orgGetName();
     temp_dialog->set_text("Enter name of new project:");
     connect(temp_dialog, SIGNAL(name_readed(QString)),this,SLOT(add_new_project_to_organization(QString)));
+    temp_dialog->setWindowTitle("New Project Name");
     temp_dialog->show();
 }
 
@@ -755,6 +758,7 @@ void OrganizationsWindow::addProjectToOrganization(QString new_project)
     file.open(QIODevice::WriteOnly);
     file.write(updatedJsonDoc.toJson());
     file.close();
+    makeAllProjectsFile(new_project);
 }
 
 
@@ -804,6 +808,7 @@ void OrganizationsWindow::on_edit_project_BTN_clicked()
         temp_dialog->ORG = this_org.orgGetName();
         temp_dialog->set_text("Enter new name of project:");
         connect(temp_dialog, SIGNAL(name_readed(QString)),this, SLOT(edit_project_in_organization(QString)));
+        temp_dialog->setWindowTitle("Edit Project Name");
         temp_dialog->show();
     }
     else
@@ -941,6 +946,31 @@ void OrganizationsWindow::search_org_project()
     }
 }
 
+void OrganizationsWindow::makeAllProjectsFile(QString new_project)
+{
+    QString file_Path1 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org.orgGetName()+ "/ORG_PROJECTS/" + new_project +"/PROJECT_PERSON.json" ;
+    QString file_Path2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org.orgGetName()+ "/ORG_PROJECTS/" + new_project +"/PROJECT_TASKS.json" ;
+    QString file_Path3 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org.orgGetName()+ "/ORG_PROJECTS/" + new_project +"/PROJECT_TEAMS.json" ;
+
+    QFile file1(file_Path1);
+    if (!file1.exists()) {
+        file1.open(QIODevice::WriteOnly);
+    }
+    file1.close();
+
+    QFile file2(file_Path2);
+    if (!file2.exists()) {
+        file2.open(QIODevice::WriteOnly);
+    }
+    file2.close();
+
+    QFile file3(file_Path3);
+    if (!file3.exists()) {
+        file3.open(QIODevice::WriteOnly);
+    }
+    file3.close();
+}
+
 
 
 void OrganizationsWindow::on_search_projects_line_edit_textChanged(const QString &arg1)
@@ -952,5 +982,21 @@ void OrganizationsWindow::on_search_projects_line_edit_textChanged(const QString
 void OrganizationsWindow::on_sort_projects_BTN__clicked()
 {
     ui->projects_list_widget->sortItems();
+}
+
+
+void OrganizationsWindow::on_projects_list_widget_itemDoubleClicked(QListWidgetItem *item)
+{
+    ProjectsWindow * t = new ProjectsWindow (this);
+    connect (this,SIGNAL(project_name_signal(QString)),t,SLOT(this_project_maker(QString)));
+    connect (this,SIGNAL(org_name_signal(QString)),t,SLOT(this_org_maker(QString)));
+    emit project_name_signal(item->text());
+    emit org_name_signal(this_org.orgGetName());
+    t->setWindowTitle("Project Management");
+    t->show();
+    t->loadProjectTeams();
+    t->loadOrgTeamsComboBox();
+    t->thisProjectShowAdmin();
+    t->loadProjectPersons();
 }
 
