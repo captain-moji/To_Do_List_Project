@@ -3,7 +3,7 @@
 Task::Task() {}
 
 Task::Task(QString n, QString de, QString da, QString p)
-    : task_name(n), description(de), task_date(da), priority(p)
+    : task_title(n), description(de), task_date(da), priority(p)
 {
 
 }
@@ -18,14 +18,14 @@ Task::~Task()
 
 }
 
-void Task::taskSetName(QString n)
+void Task::taskSetTitle(QString n)
 {
-    task_name = n;
+    task_title = n;
 }
 
-QString Task::taskGetName() const
+QString Task::taskGetTitle() const
 {
-    return task_name;
+    return task_title;
 }
 
 void Task::taskSetDescription(QString de)
@@ -57,6 +57,48 @@ QString Task::taskGetPriority() const
 {
     return priority;
 }
+
+void Task::taskSetOwnerName(QString n)
+{
+    owner_name = n;
+}
+
+QString Task::taskGetOwnerName() const
+{
+    return owner_name;
+}
+
+void Task::taskSetOwnerID(QString i)
+{
+    owner_id = i;
+}
+
+QString Task::taskGetOwnerID() const
+{
+    return owner_id;
+}
+
+void Task::taskSetOwnerType(QString t)
+{
+    owner_type = t;
+}
+
+QString Task::taskGetOwnerType() const
+{
+    return owner_type;
+}
+
+void Task::taskSetIsArchived(bool t)
+{
+    is_archived = t;
+}
+
+bool Task::taskGetIsArchived() const
+{
+    return is_archived;
+}
+
+
 
 QVector<Comment> &Task::taskGetComments()
 {

@@ -94,4 +94,30 @@ bool OrgDialog::is_exsist(QString new_name)
         }
         return false;
     }
+
+    if (type == "PROJECT_DIALOG")
+    {
+        QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + ORG + "/ORG_PROJECTS.json" ;
+
+        QFile file(file_Path);
+        if (!file.open(QIODevice::ReadOnly))
+        {
+            return true;
+        }
+
+        QByteArray jsonData = file.readAll();
+        file.close();
+
+        QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+        QJsonArray jsonArray = doc.array();
+        for (const QJsonValue& value : jsonArray) {
+            QJsonObject obj = value.toObject();
+            QString currentName = obj.value("project_name").toString();
+            if (currentName == new_name)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }

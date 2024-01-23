@@ -7,7 +7,6 @@ OrganizationsWindow::OrganizationsWindow(QWidget *parent)
 {
     makeAllpersonsFile();
     ui->setupUi(this);
-    loadAllOrgPersons();
 }
 
 
@@ -88,10 +87,7 @@ void OrganizationsWindow::removeUserFromOrganization(QString user)
 {
     QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org.orgGetName()+"/ORG_PERSONS.json";
     QFile file(file_Path);
-    if (!file.open(QIODevice::ReadWrite))
-    {
-        return;
-    }
+    file.open(QIODevice::ReadWrite);
 
     QByteArray jsonData = file.readAll();
     QJsonDocument doc(QJsonDocument::fromJson(jsonData));
@@ -130,6 +126,30 @@ void OrganizationsWindow::removeUserFromOrganization(QString user)
         emit org_name_signal(this_org.orgGetName());
         w->removeTeamPerson(user);
     }
+
+
+    QString file_Path3 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org.orgGetName()+"/ORG_PROJECTS.json";
+    QFile file3(file_Path3);
+    if (!file3.open(QIODevice::ReadOnly)) {
+        return;
+    }
+    QByteArray jsonData3 = file3.readAll();
+    file3.close();
+
+    QJsonDocument doc3 = QJsonDocument::fromJson(jsonData3);
+    QJsonArray jsonArray3 = doc3.array();
+    for (int i = 0; i < jsonArray3.size(); ++i)
+    {
+        QJsonObject jsonObject3 = jsonArray3.at(i).toObject();
+        QString name = jsonObject3.value("project_name").toString();
+        ProjectsWindow * w = new ProjectsWindow(this);
+        connect (this,SIGNAL(project_name_signal(QString)),w,SLOT(this_project_maker(QString)));
+        connect (this,SIGNAL(org_name_signal(QString)),w,SLOT(this_org_maker(QString)));
+        emit project_name_signal(name);
+        emit org_name_signal(this_org.orgGetName());
+        w->removeProjectPerson(user);
+    }
+
 }
 
 
@@ -177,9 +197,7 @@ void OrganizationsWindow::promoteToAdmin(QString user)
 
     QString file_Path2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org.orgGetName()+"/ORG_TEAMS.json";
     QFile file2(file_Path2);
-    if (!file2.open(QIODevice::ReadOnly)) {
-        return;
-    }
+    file2.open(QIODevice::ReadOnly);
     QByteArray jsonData2 = file2.readAll();
     file2.close();
 
@@ -228,6 +246,7 @@ void OrganizationsWindow::on_org_page_add_person_BTN_clicked()
     allServerUsers * a = new allServerUsers(this);
     connect (a,SIGNAL(user_selected(QString)),this,SLOT(add_new_person_to_organization(QString)));
     a->btn_disable();
+    a->setWindowTitle("Add New Person");
     a->show();
 }
 
@@ -355,7 +374,6 @@ void OrganizationsWindow::search_org_user()
 }
 
 
-
 void OrganizationsWindow::on_org_users_search_line_edit_textChanged(const QString &arg1)
 {
     on_is_org_admin_checkbox_stateChanged(0);
@@ -420,6 +438,7 @@ void OrganizationsWindow::on_add_team_BTN_clicked()
     temp_dialog->ORG = this_org.orgGetName();
     temp_dialog->set_text("Enter name of new team:");
     connect(temp_dialog, SIGNAL(name_readed(QString)),this,SLOT(add_new_team_to_organization(QString)));
+    temp_dialog->setWindowTitle("New Team Name");
     temp_dialog->show();
 }
 
@@ -493,14 +512,13 @@ void OrganizationsWindow::on_remove_team_BTN_clicked()
 
 void OrganizationsWindow::removeTeamFromOrganization(QString team_name)
 {
-    QString team_file = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + this_org.orgGetName() + "/ORG_TEAMS/" +team.teamGetName()+".json" ;
+    QString team_file = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + this_org.orgGetName() + "/ORG_TEAMS/" + team_name +".json" ;
 
     QFile team_js_File(team_file);
     if (team_js_File.exists())
     {
         team_js_File.remove();
     }
-
     QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org.orgGetName()+ "/ORG_TEAMS.json" ;
 
     QFile file(file_Path);
@@ -573,6 +591,7 @@ void OrganizationsWindow::on_edit_team_name_BTN_clicked()
             temp_dialog->ORG = this_org.orgGetName();
             temp_dialog->set_text("Enter name of new team:");
             connect(temp_dialog, SIGNAL(name_readed(QString)),this, SLOT(edit_team_in_organization(QString)));
+            temp_dialog->setWindowTitle("Edit Team Name");
             temp_dialog->show();
     }
     else
@@ -664,7 +683,6 @@ QString OrganizationsWindow::getTeamIdByName(QString name)
 
 void OrganizationsWindow::on_teams_list_widget_itemDoubleClicked(QListWidgetItem *item)
 {
-
     TeamsWindow * t = new TeamsWindow (this);
     connect (this,SIGNAL(team_name_signal(QString)),t,SLOT(this_team_maker(QString)));
     connect (this,SIGNAL(org_name_signal(QString)),t,SLOT(this_org_maker(QString)));
@@ -672,6 +690,7 @@ void OrganizationsWindow::on_teams_list_widget_itemDoubleClicked(QListWidgetItem
     emit team_name_signal(item->text());
     emit org_name_signal(this_org.orgGetName());
     emit team_id_signal(getTeamIdByName(item->text()));
+    t->setWindowTitle("Team Management");
     t->show();
     t->loadTeamPersons();
 }
@@ -689,7 +708,6 @@ void OrganizationsWindow::search_org_team()
             item->setHidden(true);
         }
     }
-
 }
 
 
@@ -702,5 +720,307 @@ void OrganizationsWindow::on_search_teams_line_edit_textChanged(const QString &a
 void OrganizationsWindow::on_sort_teams_BTN_clicked()
 {
     ui->teams_list_widget->sortItems();
+}
+
+
+void OrganizationsWindow::on_add_project_BTN_clicked()
+{
+    OrgDialog *temp_dialog = new OrgDialog(this);
+    temp_dialog->type="PROJECT_DIALOG";
+    temp_dialog->ORG = this_org.orgGetName();
+    temp_dialog->set_text("Enter name of new project:");
+    connect(temp_dialog, SIGNAL(name_readed(QString)),this,SLOT(add_new_project_to_organization(QString)));
+    temp_dialog->setWindowTitle("New Project Name");
+    temp_dialog->show();
+}
+
+void OrganizationsWindow::add_new_project_to_organization(QString a)
+{
+    ui->projects_list_widget->addItem(a);
+    addProjectToOrganization(a);
+    loadAllOrgProjects();
+}
+
+
+
+void OrganizationsWindow::addProjectToOrganization(QString new_project)
+{
+    temp_project.projSetName(new_project);
+    temp_project.projSetAdminId("");
+    QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org.orgGetName()+ "/ORG_PROJECTS.json" ;
+    QString project_folder = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + this_org.orgGetName() + "/ORG_PROJECTS/" + temp_project.projGetName();
+
+    QDir sDir2(project_folder);
+    if (!sDir2.exists())
+    {
+        sDir2.mkpath(".");
+    }
+
+    QFile file(file_Path);
+    file.open(QIODevice::ReadOnly);
+
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonDocument jsonDoc(QJsonDocument::fromJson(jsonData));
+
+    QJsonArray jsonArray = jsonDoc.array();
+
+    QJsonObject newObj;
+    newObj.insert("project_name", temp_project.projGetName());
+    newObj.insert("project_admin_id", temp_project.projGetAdminId());
+
+    jsonArray.append(newObj);
+    QJsonDocument updatedJsonDoc(jsonArray);
+
+    file.open(QIODevice::WriteOnly);
+    file.write(updatedJsonDoc.toJson());
+    file.close();
+    makeAllProjectsFile(new_project);
+}
+
+
+
+void OrganizationsWindow::loadAllOrgProjects()
+{
+    ui->projects_list_widget->clear();
+    QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + this_org.orgGetName() + "/ORG_PROJECTS.json" ;
+
+    QFile file(file_Path);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        return;
+    }
+
+    QByteArray jsonData = file.readAll();
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
+
+    QJsonArray jsonArray = jsonDoc.array();
+
+    foreach (const QJsonValue &value, jsonArray) {
+        QJsonObject obj = value.toObject();
+        QString teamName = obj.value("project_name").toString();
+        bool exists = false;
+        for (int i = 0; i < ui->projects_list_widget->count(); i++) {
+            if (ui->projects_list_widget->item(i)->text() == teamName) {
+                exists = true;
+                break;
+            }
+        }
+
+        if (!exists) {
+            ui->projects_list_widget->addItem(teamName);
+        }
+    }
+}
+
+
+void OrganizationsWindow::on_edit_project_BTN_clicked()
+{
+    QListWidgetItem *item = ui->projects_list_widget->currentItem();
+    if(item!=nullptr)
+    {
+        temp_project.projSetName(ui->projects_list_widget->currentItem()->text());
+        OrgDialog *temp_dialog = new OrgDialog(this);
+        temp_dialog->type="PROJECT_DIALOG";
+        temp_dialog->ORG = this_org.orgGetName();
+        temp_dialog->set_text("Enter new name of project:");
+        connect(temp_dialog, SIGNAL(name_readed(QString)),this, SLOT(edit_project_in_organization(QString)));
+        temp_dialog->setWindowTitle("Edit Project Name");
+        temp_dialog->show();
+    }
+    else
+    {
+        QMessageBox::information(this, "select a project", "select a project first!");
+    }
+    loadAllOrgPersons();
+}
+
+void OrganizationsWindow::edit_project_in_organization(QString n)
+{
+    editProjectinOrganization(temp_project.projGetName(),n);
+    loadAllOrgProjects();
+}
+
+
+void OrganizationsWindow::editProjectinOrganization(QString old_name, QString new_name)
+{
+    QString project_folder = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + this_org.orgGetName() + "/ORG_PROJECTS/" + old_name ;
+    QString new_project_folder = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org.orgGetName() + "/ORG_PROJECTS/" + new_name ;
+    QDir sDir(project_folder);
+    if(sDir.exists())
+    {
+        sDir.rename(project_folder,new_project_folder);
+    }
+
+    QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + this_org.orgGetName() + "/ORG_PROJECTS.json" ;
+    QFile file(file_Path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return ;
+
+    QString jsonContent = file.readAll();
+    file.close();
+
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonContent.toUtf8());
+    QJsonArray jsonArray = jsonDoc.array();
+
+    QListWidget listWidget;
+    for (int i = 0; i < jsonArray.size(); i++)
+    {
+        QJsonObject jsonObject = jsonArray.at(i).toObject();
+        QString teamName = jsonObject.value("project_name").toString();
+        listWidget.addItem(teamName);
+    }
+
+    int selectedIndex = ui->projects_list_widget->currentRow();
+    if (selectedIndex < 0 || selectedIndex >= jsonArray.size())
+        return;
+
+    QJsonObject jsonObject = jsonArray.at(selectedIndex).toObject();
+    jsonObject["project_name"] = new_name;
+    jsonArray[selectedIndex] = jsonObject;
+
+    QFile saveFile(file_Path);
+    if (!saveFile.open(QIODevice::WriteOnly ))
+        return;
+
+    QJsonDocument jsonDoc2(jsonArray);
+    saveFile.write(jsonDoc2.toJson());
+    saveFile.close();
+}
+
+
+void OrganizationsWindow::on_remove_project_BTN_clicked()
+{
+    QListWidgetItem *item = ui->projects_list_widget->currentItem();
+    if(item!=nullptr)
+    {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Delete a project", "Are you sure?\nDeleteing is not returnable!", QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::Yes)
+        {
+            QString name = item->text();
+            removeProjectFromOrganization(name);
+        }
+    }
+    else
+    {
+        QMessageBox::information(this, "select a project", "select a project first!");
+    }
+    loadAllOrgProjects();
+}
+
+
+
+
+void OrganizationsWindow::removeProjectFromOrganization(QString project_name)
+{
+    QString project_folder = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + this_org.orgGetName() + "/ORG_PROJECTS/" + project_name ;
+
+    QDir sDir(project_folder);
+    if(sDir.exists())
+    {
+        sDir.removeRecursively();
+    }
+
+    QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org.orgGetName()+ "/ORG_PROJECTS.json" ;
+
+    QFile file(file_Path);
+    file.open(QIODevice::ReadOnly);
+
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonDocument jsonDoc(QJsonDocument::fromJson(jsonData));
+
+    QJsonArray jsonArray = jsonDoc.array();
+
+    for (int i = 0; i < jsonArray.size(); i++) {
+        QJsonObject obj = jsonArray.at(i).toObject();
+        if (obj.value("project_name").toString() == project_name) {
+            jsonArray.removeAt(i);
+            i--;
+        }
+    }
+
+    QJsonDocument updatedJsonDoc(jsonArray);
+    file.open(QIODevice::WriteOnly);
+    file.write(updatedJsonDoc.toJson());
+    file.close();
+}
+
+
+void OrganizationsWindow::search_org_project()
+{
+    QString s = ui->search_projects_line_edit->text();
+    for (int i = 0; i < ui->projects_list_widget->count(); ++i)
+    {
+        QListWidgetItem *item = ui->projects_list_widget->item(i);
+        if (item->text().startsWith(s)) {
+            item->setHidden(false);
+        } else {
+            item->setHidden(true);
+        }
+    }
+}
+
+void OrganizationsWindow::makeAllProjectsFile(QString new_project)
+{
+    QString file_Path1 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org.orgGetName()+ "/ORG_PROJECTS/" + new_project +"/PROJECT_PERSON.json" ;
+    QString file_Path2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org.orgGetName()+ "/ORG_PROJECTS/" + new_project +"/PROJECT_TASKS.json" ;
+    QString file_Path3 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org.orgGetName()+ "/ORG_PROJECTS/" + new_project +"/PROJECT_TEAMS.json" ;
+    QString file_Path4 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org.orgGetName()+ "/ORG_PROJECTS/" + new_project +"/PROJECT_TASKS" ;
+
+    QFile file1(file_Path1);
+    if (!file1.exists()) {
+        file1.open(QIODevice::WriteOnly);
+    }
+    file1.close();
+
+    QFile file2(file_Path2);
+    if (!file2.exists()) {
+        file2.open(QIODevice::WriteOnly);
+    }
+    file2.close();
+
+    QFile file3(file_Path3);
+    if (!file3.exists()) {
+        file3.open(QIODevice::WriteOnly);
+    }
+    file3.close();
+    QDir sDir(file_Path4);
+    if (!sDir.exists())
+    {
+        sDir.mkpath(".");
+    }
+}
+
+
+
+void OrganizationsWindow::on_search_projects_line_edit_textChanged(const QString &arg1)
+{
+    search_org_project();
+}
+
+
+void OrganizationsWindow::on_sort_projects_BTN__clicked()
+{
+    ui->projects_list_widget->sortItems();
+}
+
+
+void OrganizationsWindow::on_projects_list_widget_itemDoubleClicked(QListWidgetItem *item)
+{
+    ProjectsWindow * t = new ProjectsWindow (this);
+    connect (this,SIGNAL(project_name_signal(QString)),t,SLOT(this_project_maker(QString)));
+    connect (this,SIGNAL(org_name_signal(QString)),t,SLOT(this_org_maker(QString)));
+    emit project_name_signal(item->text());
+    emit org_name_signal(this_org.orgGetName());
+    t->setWindowTitle("Project Management");
+    t->show();
+    t->loadProjectTeams();
+    t->loadOrgTeamsComboBox();
+    t->thisProjectShowAdmin();
+    t->loadProjectPersons();
 }
 

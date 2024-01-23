@@ -11,9 +11,6 @@ class Organization
 {
 private:
     QString org_name;
-    QVector<OrgPerson> org_persons;
-    QVector<Team> teams;
-    QVector<Project> projects;
 
 public:
     Organization();
@@ -22,12 +19,6 @@ public:
     ~Organization();
     void orgSetName(QString);
     QString orgGetName() const;
-    QVector<OrgPerson> &orgGetPersons();
-    const QVector<OrgPerson> &orgGetPersons() const;
-    QVector<Team> &orgGetTeams();
-    const QVector<Team> &orgGetTeams() const;
-    QVector<Project> &orgGetprojects();
-    const QVector<Project> &orgGetprojects() const;
 };
 
 #endif // ORGANIZATION_H

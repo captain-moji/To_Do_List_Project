@@ -17,12 +17,8 @@ OrganizationPersonsWindow::~OrganizationPersonsWindow()
 void OrganizationPersonsWindow::loadOrgPersons()
 {
     QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + ORG + "/ORG_PERSONS.json";
-    qDebug() << file_Path;
     QFile file(file_Path);
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        return;
-    }
+    file.open(QIODevice::ReadOnly);
 
     QByteArray jsonData = file.readAll();
     QJsonDocument jsonDoc(QJsonDocument::fromJson(jsonData));
