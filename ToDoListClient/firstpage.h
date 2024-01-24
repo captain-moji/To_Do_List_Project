@@ -16,6 +16,7 @@
 #include <todolist.h>
 #include <QCryptographicHash>
 
+
 namespace Ui {
 class FirstPage;
 }
@@ -27,7 +28,6 @@ class FirstPage : public QMainWindow
 public:
     explicit FirstPage(QWidget *parent = nullptr);
     ~FirstPage();
-    void processor();
 
 private slots:
 
@@ -35,14 +35,12 @@ private slots:
     void username_checker(QString u);
     void password_checker(QString p);
 
-private:
+    void on_first_page_signin_BTN_clicked();
 
+private:
     bool user_correct;
     QString username;
     QString password;
-
-    void make_data_folder();
-    void make_admin_file();
 
     Ui::FirstPage *ui;
     Connection channel;
