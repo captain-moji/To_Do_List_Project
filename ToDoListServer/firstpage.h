@@ -5,6 +5,7 @@
 #include <signup.h>
 #include <login.h>
 #include <person.h>
+#include <connection.h>
 #include <QJsonArray>
 #include <QFile>
 #include <QJsonDocument>
@@ -14,7 +15,6 @@
 #include <QMessageBox>
 #include <todolist.h>
 #include <QCryptographicHash>
-
 
 namespace Ui {
 class FirstPage;
@@ -27,6 +27,7 @@ class FirstPage : public QMainWindow
 public:
     explicit FirstPage(QWidget *parent = nullptr);
     ~FirstPage();
+    void processor();
 
 private slots:
 
@@ -44,6 +45,8 @@ private:
     void make_admin_file();
 
     Ui::FirstPage *ui;
+    Connection channel;
+
 signals:
     void who_logged_in(QString id);
 };
