@@ -256,6 +256,33 @@ void ProjectsWindow::removeProjectPerson(QString username)
     }
     file.write(jsonDoc.toJson());
     file.close();
+
+
+    QString file_Path2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org+"/ORG_PROJECTS/"+this_project.projGetName() +"/PROJECT_TASKS.json";
+    QFile file2(file_Path2);
+    file2.open(QIODevice::ReadOnly);
+    QByteArray jsonData2 = file2.readAll();
+    file2.close();
+
+    QJsonDocument jsonDoc2 = QJsonDocument::fromJson(jsonData2);
+
+    QJsonArray jsonArray2 = jsonDoc2.array();
+    for (int i = 0; i < jsonArray2.size(); ++i) {
+        QJsonObject jsonObject2 = jsonArray2.at(i).toObject();
+        QString ownerName = jsonObject2.value("task_owner_name").toString();
+        if (ownerName == username)
+        {
+            jsonObject2["task_owner_name"] = "";
+            jsonObject2["task_owner_id"] = "";
+            jsonObject2["task_owner_type"] = "";
+        }
+        jsonArray2.replace(i, jsonObject2);
+    }
+    file2.open(QIODevice::WriteOnly);
+    QJsonDocument modifiedJsonDoc(jsonArray2);
+    file2.write(modifiedJsonDoc.toJson());
+    file2.close();
+
 }
 
 
@@ -543,12 +570,90 @@ void ProjectsWindow::removeTeamfromProject(QString teamname)
             break;
         }
     }
-
     doc.setArray(jsonArray);
     file.open(QIODevice::WriteOnly);
     file.write(doc.toJson());
     file.close();
+
+
+    QString file_Path2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org+"/ORG_PROJECTS/"+this_project.projGetName() +"/PROJECT_TASKS.json";
+    QFile file2(file_Path2);
+    file2.open(QIODevice::ReadOnly);
+    QByteArray jsonData2 = file2.readAll();
+    file2.close();
+
+    QJsonDocument jsonDoc2 = QJsonDocument::fromJson(jsonData2);
+
+    QJsonArray jsonArray2 = jsonDoc2.array();
+    for (int i = 0; i < jsonArray2.size(); ++i) {
+        QJsonObject jsonObject2 = jsonArray2.at(i).toObject();
+        QString ownerName = jsonObject2.value("task_owner_name").toString();
+        if (ownerName == teamname)
+        {
+            jsonObject2["task_owner_name"] = "";
+            jsonObject2["task_owner_id"] = "";
+            jsonObject2["task_owner_type"] = "";
+        }
+        jsonArray2.replace(i, jsonObject2);
+    }
+    file2.open(QIODevice::WriteOnly);
+    QJsonDocument modifiedJsonDoc(jsonArray2);
+    file2.write(modifiedJsonDoc.toJson());
+    file2.close();
+
 }
+
+
+void ProjectsWindow::editTeamInProject(QString old_name, QString new_name)
+{
+    QString file_Path2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org+"/ORG_PROJECTS/"+this_project.projGetName() +"/PROJECT_TEAMS.json";
+    QFile file2(file_Path2);
+    file2.open(QIODevice::ReadOnly);
+    QByteArray jsonData2 = file2.readAll();
+    file2.close();
+
+    QJsonDocument jsonDoc2 = QJsonDocument::fromJson(jsonData2);
+
+    QJsonArray jsonArray2 = jsonDoc2.array();
+    for (int i = 0; i < jsonArray2.size(); ++i) {
+        QJsonObject jsonObject2 = jsonArray2.at(i).toObject();
+        QString ownerName = jsonObject2.value("team_name").toString();
+        if (ownerName == old_name)
+        {
+            jsonObject2["team_name"] = new_name;
+        }
+        jsonArray2.replace(i, jsonObject2);
+    }
+    file2.open(QIODevice::WriteOnly);
+    QJsonDocument modifiedJsonDoc(jsonArray2);
+    file2.write(modifiedJsonDoc.toJson());
+    file2.close();
+
+
+    QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org+"/ORG_PROJECTS/"+this_project.projGetName() +"/PROJECT_TASKS.json";
+    QFile file(file_Path);
+    file.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
+
+    QJsonArray jsonArray = jsonDoc.array();
+    for (int i = 0; i < jsonArray.size(); ++i) {
+        QJsonObject jsonObject = jsonArray.at(i).toObject();
+        QString ownerName = jsonObject.value("task_owner_name").toString();
+        if (ownerName == old_name)
+        {
+            jsonObject["task_owner_name"] = new_name;
+        }
+        jsonArray.replace(i, jsonObject);
+    }
+    file.open(QIODevice::WriteOnly);
+    QJsonDocument modifiedJsonDoc2(jsonArray);
+    file.write(modifiedJsonDoc2.toJson());
+    file.close();
+}
+
 
 void ProjectsWindow::on_project_teams_sort_BTN_clicked()
 {
@@ -579,21 +684,14 @@ void ProjectsWindow::on_add_new_task_BTN_clicked()
     TaskWindow * w = new TaskWindow (this);
     connect (w,SIGNAL(new_task_maked(Task)),this,SLOT(project_task_maker(Task)));
     w->typeSetter("NEW_TASK");
+    w->thisOrgProjectSetter(this_org,this_project.projGetName());
     w->show();
-
 }
 
 void ProjectsWindow::project_task_maker(Task maked_task)
 {
     AddNewTaskToProject(maked_task);
-    QTreeWidgetItem *item = new QTreeWidgetItem(ui->project_tasks_tree_widget);
-    item->setText(0, maked_task.taskGetTitle());
-    item->setText(1, maked_task.taskGetOwnerName());
-    item->setText(2, maked_task.taskGetDate());
-    item->setText(3, maked_task.taskGetPriority());
-    item->setText(4, maked_task.taskGetIsArchived() ? "YES" : "NO");
-
-    ui->project_tasks_tree_widget->addTopLevelItem(item);
+    loadProjectTasks();
 }
 
 
@@ -626,6 +724,7 @@ void ProjectsWindow::AddNewTaskToProject(Task new_task)
 
     QJsonObject newTaskObject;
     newTaskObject["task_title"] = new_task.taskGetTitle();
+    newTaskObject["task_priority"] = new_task.taskGetPriority();
     newTaskObject["task_description"] = new_task.taskGetDescription();
     newTaskObject["task_owner_type"] = new_task.taskGetOwnerType();
     newTaskObject["task_owner_name"] = new_task.taskGetOwnerName();
@@ -639,5 +738,328 @@ void ProjectsWindow::AddNewTaskToProject(Task new_task)
     file.write(jsonDoc2.toJson());
     file.close();
 
+}
+
+void ProjectsWindow::loadProjectTasks()
+{
+    ui->project_tasks_tree_widget->clear();
+    QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org+ "/ORG_PROJECTS/" + this_project.projGetName() +"/PROJECT_TASKS.json" ;
+    QFile file(file_Path);
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        return;
+    }
+
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+    file.close();
+
+    if (!jsonDoc.isArray())
+    {
+        return;
+    }
+
+    QJsonArray jsonArray = jsonDoc.array();
+    for (int i = 0; i < jsonArray.size(); ++i)
+    {
+        QJsonObject jsonObj = jsonArray[i].toObject();
+
+        QString title = jsonObj["task_title"].toString();
+        QString ownerName = jsonObj["task_owner_name"].toString();
+        QString date = jsonObj["task_date"].toString();
+        bool isArchived = jsonObj["task_is_archived"].toBool();
+        QString priority = jsonObj["task_priority"].toString();
+
+        QTreeWidgetItem *item = new QTreeWidgetItem(ui->project_tasks_tree_widget);
+        item->setText(0, title);
+        item->setText(1, ownerName);
+        item->setText(2, date);
+        item->setText(3, priority);
+        item->setText(4, isArchived ? "Yes" : "No");
+    }
+}
+
+
+
+void ProjectsWindow::on_remove_task_BTN_clicked()
+{
+
+    QTreeWidgetItem *selectedItem = ui->project_tasks_tree_widget->currentItem();
+    if (selectedItem)
+    {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Delete a task", "Are you sure?\nDeleteing is not returnable!", QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::Yes)
+        {
+            QString selecteduser = selectedItem->text(0);
+            removeTaskFromProject(selecteduser);
+            loadProjectTasks();
+        }
+    }
+    else
+        QMessageBox::warning(this, "Select a task", "select a task from the list!");
+}
+
+
+void ProjectsWindow::removeTaskFromProject(QString task_name)
+{
+    QString folder_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org + "/ORG_PROJECTS/" + this_project.projGetName() +"/PROJECT_TASKS/"+ task_name;
+
+    QDir sDir(folder_Path);
+    if(sDir.exists())
+    {
+        sDir.removeRecursively();
+    }
+
+    QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org+ "/ORG_PROJECTS/" + this_project.projGetName() +"/PROJECT_TASKS.json" ;
+
+    QFile file(file_Path);
+    file.open(QIODevice::ReadWrite);
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+    file.close();
+
+    QJsonArray jsonArray = jsonDoc.array();
+    QString searchString = task_name;
+
+    for (int i = 0; i < jsonArray.size(); ++i)
+    {
+        QJsonObject jsonObj = jsonArray[i].toObject();
+
+        if (jsonObj["task_title"].toString() == searchString)
+        {
+            jsonArray.removeAt(i);
+            break;
+        }
+    }
+
+    QJsonDocument updatedJsonDoc(jsonArray);
+
+    file.open(QIODevice::WriteOnly);
+    file.write(updatedJsonDoc.toJson());
+    file.close();
+}
+
+
+void ProjectsWindow::on_archive_unarchive_BTN_clicked()
+{
+    QTreeWidgetItem *item = ui->project_tasks_tree_widget->currentItem();
+    if (item)
+    {
+        QString selecteduser = item->text(0);
+        EditTaskArchive(selecteduser);
+        loadProjectTasks();
+    }
+    else
+    QMessageBox::warning(this, "Select a task", "select a task from the list!");
+}
+
+
+void ProjectsWindow::EditTaskArchive(QString task_title)
+{
+    QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org+ "/ORG_PROJECTS/" + this_project.projGetName() +"/PROJECT_TASKS.json" ;
+    QFile file(file_Path);
+    file.open(QIODevice::ReadOnly);
+
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonDocument doc(QJsonDocument::fromJson(jsonData));
+    QJsonArray tasks = doc.array();
+
+    QString inputString = task_title;
+
+    for (int i = 0; i < tasks.size(); ++i) {
+        QJsonObject task = tasks.at(i).toObject();
+        if (task.value("task_title").toString() == inputString)
+        {
+            if (task["task_is_archived"] == true)
+                task["task_is_archived"] = false;
+            else
+                task["task_is_archived"] = true;
+
+            tasks.replace(i, task);
+            break;
+        }
+    }
+
+    file.open(QIODevice::WriteOnly);
+    doc.setArray(tasks);
+    file.write(doc.toJson());
+    file.close();
+}
+
+
+void ProjectsWindow::on_project_tasks_tree_widget_itemDoubleClicked(QTreeWidgetItem *item, int column)
+{
+    QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org+ "/ORG_PROJECTS/" + this_project.projGetName() +"/PROJECT_TASKS.json" ;
+    QFile file(file_Path);
+    file.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonDocument doc(QJsonDocument::fromJson(jsonData));
+    QJsonArray tasks = doc.array();
+
+    QString inputString = item->text(0);
+
+    for (int i = 0; i < tasks.size(); ++i) {
+        QJsonObject task = tasks.at(i).toObject();
+        if (task.value("task_title").toString() == inputString)
+        {
+            this_task.taskSetTitle(task.value("task_title").toString());
+            this_task.taskSetDate(task.value("task_date").toString());
+            this_task.taskSetDescription(task.value("task_description").toString());
+            this_task.taskSetIsArchived(task.value("task_is_archived").toBool());
+            this_task.taskSetOwnerID(task.value("task_owner_id").toString());
+            this_task.taskSetOwnerName(task.value("task_owner_name").toString());
+            this_task.taskSetOwnerType(task.value("task_owner_type").toString());
+            this_task.taskSetPriority(task.value("task_priority").toString());
+            break;
+        }
+    }
+    TaskWindow * w = new TaskWindow (this);
+    connect (this,SIGNAL(this_task_maked(Task)),w,SLOT(this_task_maker(Task)));
+    connect (w,SIGNAL(task_edited(Task)),this,SLOT(edit_project_task(Task)));
+    w->typeSetter("EDIT_TASK");
+    w->thisOrgProjectSetter(this_org,this_project.projGetName());
+    emit this_task_maked(this_task);
+    w->show();
+}
+
+
+void ProjectsWindow::edit_project_task(Task edited_task)
+{
+    EditTaskInProject(ui->project_tasks_tree_widget->currentItem()->text(0) , edited_task);
+    loadProjectTasks();
+}
+
+
+void ProjectsWindow::EditTaskInProject(QString old_task , Task edited_task)
+{
+
+    QString old_folder_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org + "/ORG_PROJECTS/" + this_project.projGetName() +"/PROJECT_TASKS/"+ old_task;
+    QString new_folder_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org + "/ORG_PROJECTS/" + this_project.projGetName() +"/PROJECT_TASKS/"+ edited_task.taskGetTitle();
+    QDir sDir(old_folder_Path);
+    sDir.rename(old_folder_Path,new_folder_Path);
+
+    QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+ this_org+ "/ORG_PROJECTS/" + this_project.projGetName() +"/PROJECT_TASKS.json" ;
+    QFile file(file_Path);
+    file.open(QIODevice::ReadOnly);
+
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonDocument doc(QJsonDocument::fromJson(jsonData));
+    QJsonArray tasks = doc.array();
+
+    for (int i = 0; i < tasks.size(); ++i) {
+        QJsonObject task = tasks.at(i).toObject();
+        if (task.value("task_title").toString() == old_task)
+        {
+            task["task_is_archived"] = false;
+            task["task_priority"] = edited_task.taskGetPriority();
+            task["task_title"] = edited_task.taskGetTitle();
+            task["task_date"] = edited_task.taskGetDate();
+            task["task_owner_name"] = edited_task.taskGetOwnerName();
+            task["task_owner_id"] = edited_task.taskGetOwnerID();
+            task["task_owner_type"] = edited_task.taskGetOwnerType();
+            task["task_description"] = edited_task.taskGetDescription();
+            task["task_is_archived"] = edited_task.taskGetIsArchived();
+            tasks.replace(i, task);
+            break;
+        }
+    }
+
+    file.open(QIODevice::WriteOnly);
+    doc.setArray(tasks);
+    file.write(doc.toJson());
+    file.close();
+}
+
+
+void ProjectsWindow::search_task()
+{
+    QString input = ui->search_task_line_edit->text();
+    QString search_type;
+
+    for (int i = 0; i < ui->project_tasks_tree_widget->topLevelItemCount(); ++i)
+    {
+        QTreeWidgetItem *item = ui->project_tasks_tree_widget->topLevelItem(i);
+        {
+            if (ui->task_search_by_title->isChecked())
+                search_type = item->text(0);
+            else if (ui->task_search_by_owner->isChecked())
+                search_type = item->text(1);
+        }
+
+        if(!item->isHidden())
+        {
+            if (search_type.startsWith(input))
+            {
+                item->setHidden(false);
+            }
+            else
+            {
+                item->setHidden(true);
+            }
+        }
+    }
+}
+
+
+
+void ProjectsWindow::on_search_task_line_edit_textChanged(const QString &arg1)
+{
+    on_archived_checkbox_stateChanged(0);
+    on_not_archived_checkbox_stateChanged(0);
+    search_task();
+}
+
+
+void ProjectsWindow::on_archived_checkbox_stateChanged(int arg1)
+{
+    for (int i = 0; i < ui->project_tasks_tree_widget->topLevelItemCount(); ++i)
+    {
+        QTreeWidgetItem *item = ui->project_tasks_tree_widget->topLevelItem(i);
+
+        if (ui->archived_checkbox->isChecked())
+        {
+            if (item->text(4)=="Yes")
+            {
+                item->setHidden(false);
+            }
+        }
+        else if (!ui->archived_checkbox->isChecked())
+        {
+            if (item->text(4)=="Yes")
+            {
+                item->setHidden(true);
+            }
+        }
+    }
+    search_task();
+}
+
+
+void ProjectsWindow::on_not_archived_checkbox_stateChanged(int arg1)
+{
+    for (int i = 0; i < ui->project_tasks_tree_widget->topLevelItemCount(); ++i) {
+        QTreeWidgetItem *item = ui->project_tasks_tree_widget->topLevelItem(i);
+
+        if (ui->not_archived_checkbox->isChecked())
+        {
+            if (item->text(4)=="No")
+            {
+                item->setHidden(false);
+            }
+        }
+        else if (!ui->not_archived_checkbox->isChecked())
+        {
+            if (item->text(4)=="No")
+            {
+                item->setHidden(true);
+            }
+        }
+    }
+    search_task();
 }
 

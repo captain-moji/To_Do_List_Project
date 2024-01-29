@@ -533,16 +533,40 @@ void OrganizationsWindow::removeTeamFromOrganization(QString team_name)
 
     for (int i = 0; i < jsonArray.size(); i++) {
         QJsonObject obj = jsonArray.at(i).toObject();
-        if (obj.value("team_name").toString() == team_name) {
+        if (obj.value("team_name").toString() == team_name)
+        {
             jsonArray.removeAt(i);
             i--;
         }
     }
-
     QJsonDocument updatedJsonDoc(jsonArray);
     file.open(QIODevice::WriteOnly);
     file.write(updatedJsonDoc.toJson());
     file.close();
+
+
+
+    QString file_Path3 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org.orgGetName()+"/ORG_PROJECTS.json";
+    QFile file3(file_Path3);
+    if (!file3.open(QIODevice::ReadOnly)) {
+        return;
+    }
+    QByteArray jsonData3 = file3.readAll();
+    file3.close();
+
+    QJsonDocument doc3 = QJsonDocument::fromJson(jsonData3);
+    QJsonArray jsonArray3 = doc3.array();
+    for (int i = 0; i < jsonArray3.size(); ++i)
+    {
+        QJsonObject jsonObject3 = jsonArray3.at(i).toObject();
+        QString name = jsonObject3.value("project_name").toString();
+        ProjectsWindow * w = new ProjectsWindow(this);
+        connect (this,SIGNAL(project_name_signal(QString)),w,SLOT(this_project_maker(QString)));
+        connect (this,SIGNAL(org_name_signal(QString)),w,SLOT(this_org_maker(QString)));
+        emit project_name_signal(name);
+        emit org_name_signal(this_org.orgGetName());
+        w->removeTeamfromProject(team_name);
+    }
 }
 
 
@@ -650,6 +674,31 @@ void OrganizationsWindow::editTeaminOrganization(QString old_name,QString new_na
     QJsonDocument jsonDoc2(jsonArray);
     saveFile.write(jsonDoc2.toJson());
     saveFile.close();
+
+
+
+
+    QString file_Path3 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org.orgGetName()+"/ORG_PROJECTS.json";
+    QFile file3(file_Path3);
+    if (!file3.open(QIODevice::ReadOnly)) {
+        return;
+    }
+    QByteArray jsonData3 = file3.readAll();
+    file3.close();
+
+    QJsonDocument doc3 = QJsonDocument::fromJson(jsonData3);
+    QJsonArray jsonArray3 = doc3.array();
+    for (int i = 0; i < jsonArray3.size(); ++i)
+    {
+        QJsonObject jsonObject3 = jsonArray3.at(i).toObject();
+        QString name = jsonObject3.value("project_name").toString();
+        ProjectsWindow * w = new ProjectsWindow(this);
+        connect (this,SIGNAL(project_name_signal(QString)),w,SLOT(this_project_maker(QString)));
+        connect (this,SIGNAL(org_name_signal(QString)),w,SLOT(this_org_maker(QString)));
+        emit project_name_signal(name);
+        emit org_name_signal(this_org.orgGetName());
+        w->editTeamInProject(old_name,new_name);
+    }
 }
 
 
@@ -1022,5 +1071,6 @@ void OrganizationsWindow::on_projects_list_widget_itemDoubleClicked(QListWidgetI
     t->loadOrgTeamsComboBox();
     t->thisProjectShowAdmin();
     t->loadProjectPersons();
+    t->loadProjectTasks();
 }
 
