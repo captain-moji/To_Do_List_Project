@@ -65,45 +65,45 @@ void FirstPage::sendRequest(QString s)
 
 void FirstPage::responseChecker(QString response)
 {
-        QJsonDocument jsonDocument = QJsonDocument::fromJson(response.toUtf8());
-        QJsonObject jsonObject = jsonDocument.object();
-        QString resState = jsonObject["res-state"].toString();
+    QJsonDocument jsonDocument = QJsonDocument::fromJson(response.toUtf8());
+    QJsonObject jsonObject = jsonDocument.object();
+    QString resState = jsonObject["res-state"].toString();
 
-        if (resState == "login-ok")
-        {
-            QMessageBox ::information( this, "OK!" ,"Welcome!");
-            ToDoList * t = new ToDoList();
-            this->close();
-            t->show();
-            connect(this,SIGNAL(socket_signal(QTcpSocket*)) ,t, SLOT(connectionMaker(QTcpSocket*)));
-            emit socket_signal(socket);
-            //t->connectionMaker(ip,port);
-            t->thisUserMaker(jsonObject["username"].toString(),jsonObject["id"].toString(),jsonObject["name"].toString());
-            //t->loadOrganizations();
-        }
-        else if (resState == "username-not-found" || resState =="password-incorrect")
-            QMessageBox::warning(this, "Error!" ,"Username or password is not correct!");
+    if (resState == "login-ok")
+    {
+        QMessageBox ::information( this, "OK!" ,"Welcome!");
+        ToDoList * t = new ToDoList();
+        this->close();
+        t->show();
+        connect(this,SIGNAL(socket_signal(QTcpSocket*)) ,t, SLOT(connectionMaker(QTcpSocket*)));
+        emit socket_signal(socket);
+        //t->connectionMaker(ip,port);
+        t->thisUserMaker(jsonObject["username"].toString(),jsonObject["id"].toString(),jsonObject["name"].toString());
+        //t->loadOrganizations();
+    }
+    if (resState == "username-not-found" || resState =="password-incorrect")
+        QMessageBox::warning(this, "Error!" ,"Username or password is not correct!");
 
-        if (resState == "signup-ok")
-        {
-            QMessageBox::information(this, "OK!" ,"You can Loggin Now!");
-        }
-        else if (resState =="username-is-exsist" )
-        {
-            QMessageBox::warning(this, "Username Exist!" ,"Try another username!");
-        }
+    if (resState == "signup-ok")
+    {
+        QMessageBox::information(this, "OK!" ,"You can Loggin Now!");
+    }
+    if (resState =="username-is-exsist" )
+    {
+        QMessageBox::warning(this, "Username Exist!" ,"Try another username!");
+    }
 
-        if (resState == "reset-password-ok")
-        {
-            QString ans = jsonObject["answer"].toString();
-            QString que = jsonObject["question"].toString();
-            QString use = jsonObject["username"].toString();
-            questionAnswerChecker(use, que, ans);
-        }
-        else if (resState == "reset_username-not-found")
-        {
-
-        }
+    if (resState == "reset-password-ok")
+    {
+        QString ans = jsonObject["answer"].toString();
+        QString que = jsonObject["question"].toString();
+        QString use = jsonObject["username"].toString();
+        questionAnswerChecker(use, que, ans);
+    }
+    if (resState == "reset-password-failed")
+    {
+        QMessageBox::warning(this, "Username Not Exist!" ,"Try another username!");
+    }
 }
 
 void FirstPage::questionAnswerChecker(QString user, QString questin, QString answer)
@@ -111,19 +111,9 @@ void FirstPage::questionAnswerChecker(QString user, QString questin, QString ans
     OrgDialog *d = new OrgDialog(this);
     d->set_text(questin);
     d->type = "reset";
-    connect(d, SIGNAL(name_readed),this, SLOT(get_answer(QString)));
+    connect(d, SIGNAL(name_readed(QString)),this, SLOT(get_answer(QString)));
     d->show();
-    if(answer == temp_answer)
-    {
-        OrgDialog *d1 = new OrgDialog(this);
-        d1->set_text("Enter new password");
-        connect(d, SIGNAL(name_readed),this, SLOT(send_new_password(QString)));
-        d1->show();
-    }
-    else
-    {
-        QMessageBox::warning(this, "Wrong answer!" ,"Try again!");
-    }
+    temp_answer = answer;
 }
 
 void FirstPage::send_reset_req(QString user)
@@ -132,7 +122,6 @@ void FirstPage::send_reset_req(QString user)
     jsonObject["req-type"] = "user-reset-pasword";
     jsonObject["username"] = user;
     username = user;
-
     QJsonDocument jsonDocument(jsonObject);
     QString req = jsonDocument.toJson(QJsonDocument::Compact);
     sendRequest(req);
@@ -141,19 +130,38 @@ void FirstPage::send_reset_req(QString user)
 
 void FirstPage::get_answer(QString ans)
 {
-    temp_answer = ans;
+    if(temp_answer == ans)
+    {
+        Signup * s = new Signup(this);
+        s->resetPasswordType();
+        connect(s, SIGNAL(reset_password(QString)),this, SLOT(send_new_password(QString)));
+        s->show();
+    }
+    else
+    {
+        QMessageBox::warning(this, "Wrong answer!" ,"Try again!");
+    }
 }
+
 
 void FirstPage::send_new_password(QString p)
 {
+    QCryptographicHash hash(QCryptographicHash::Sha256);
+    QByteArray textBytes = p.toUtf8();
+    hash.addData(textBytes);
+    QByteArray hashedText = hash.result();
+    QString hashedHex = hashedText.toHex();
+    QString hashed_pass=hashedHex;
     QJsonObject jsonObject;
     jsonObject["req-type"] = "user-new-pasword";
     jsonObject["username"] = username;
-    jsonObject["new-password"] = p;
+    jsonObject["new-password"] = hashed_pass;
 
     QJsonDocument jsonDocument(jsonObject);
     QString req = jsonDocument.toJson(QJsonDocument::Compact);
     sendRequest(req);
+    QMessageBox::information(this, "OK!" ,"Login with your new password!");
+
 }
 
 
