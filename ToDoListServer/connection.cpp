@@ -63,7 +63,6 @@ void Connection::serverResponse(QString s)
     // }
 }
 
-
 void Connection::serverReqActions(QString received_message)
 {
     qDebug() << received_message;
@@ -92,11 +91,18 @@ void Connection::serverReqActions(QString received_message)
         QString temp_username = jsonObject["username"].toString();
         load_user_organizations(temp_username);
     }
-
-
-
+    if (reqtype == "user-reset-pasword")
+    {
+        QString temp_username = jsonObject["username"].toString();
+        send_user_question(temp_username);
+    }
+    if (reqtype == "user-new-pasword")
+    {
+        QString temp_username = jsonObject["username"].toString();
+        QString new_password = jsonObject["new-password"].toString();
+        change_user_password(temp_username, new_password);
+    }
 }
-
 
 void Connection::server_newConnection()
 {
@@ -114,7 +120,6 @@ void Connection::socket_readyRead()
     serverReqActions(QString(data));
 }
 
-
 void Connection::socket_bytesWritten()
 {
 
@@ -126,7 +131,6 @@ void Connection::socket_disConnected()
 
 
 }
-
 
 void Connection::login_user(QString username, QString password)
 {
@@ -236,6 +240,75 @@ void Connection::signup_user(QString username, QString password, QString name, Q
         serverResponse(resp);
     }
 }
+
+void Connection::send_user_question (QString username)
+{
+    QString file_Path = QDir::currentPath() + "/APPDATA/ALL_PERSONS.json";
+    QFile file(file_Path);
+    file.open(QIODevice::ReadOnly);
+    QByteArray rawData = file.readAll();
+    file.close();
+
+    QJsonDocument doc(QJsonDocument::fromJson(rawData));
+    QJsonArray jsonArray = doc.array();
+
+    QString question;
+    QString answer;
+    foreach (const QJsonValue & value, jsonArray) {
+        QJsonObject obj = value.toObject();
+        if (obj["username"].toString() == username) {
+            question = obj["question"].toString();
+            answer = obj["answer"].toString();
+            break;
+        }
+    }
+
+    if (question == "")
+    {
+        QJsonObject jsonObject3;
+        jsonObject3["res-state"] = "reset-password-failed";
+        jsonObject3["Message"] = "User Not Found!";
+        QJsonDocument jsonDocument2(jsonObject3);
+        resp = jsonDocument2.toJson(QJsonDocument::Compact);
+        serverResponse(resp);
+    }
+    else
+    {
+        QJsonObject jsonObject3;
+        jsonObject3["res-state"] = "reset-password-ok";
+        jsonObject3["question"] = question;
+        jsonObject3["answer"] = answer;
+        jsonObject3["username"] = username;
+        QJsonDocument jsonDocument2(jsonObject3);
+        resp = jsonDocument2.toJson(QJsonDocument::Compact);
+        serverResponse(resp);
+    }
+}
+
+void Connection::change_user_password (QString username, QString new_password)
+{
+    QString file_Path = QDir::currentPath() + "/APPDATA/ALL_PERSONS.json";
+    QFile file(file_Path);
+    file.open(QIODevice::ReadOnly);
+    QByteArray rawData = file.readAll();
+    file.close();
+    QJsonDocument doc(QJsonDocument::fromJson(rawData));
+    QJsonArray jsonArray = doc.array();
+    for (int i = 0; i < jsonArray.size(); i++) {
+        QJsonObject obj = jsonArray[i].toObject();
+        if (obj["username"].toString() == username) {
+            obj["password"] = new_password;
+            jsonArray[i] = obj;
+            break;
+        }
+    }
+
+    doc.setArray(jsonArray);
+    file.open(QIODevice::WriteOnly);
+    file.write(doc.toJson());
+    file.close();
+}
+
 
 void Connection::load_user_organizations(QString username)
 {
