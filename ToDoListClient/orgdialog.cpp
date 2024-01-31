@@ -120,4 +120,9 @@ bool OrgDialog::is_exsist(QString new_name)
         }
         return false;
     }
+
+    if (type == "RESET_REQUEST")
+    {
+        return false;
+    }
 }
