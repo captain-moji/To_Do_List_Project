@@ -1,13 +1,11 @@
 #ifndef TODOLIST_H
 #define TODOLIST_H
 
-
 #include <QMainWindow>
 #include <person.h>
 #include <QString>
 #include <person.h>
 #include <organization.h>
-#include <connection.h>
 #include <QJsonArray>
 #include <QFile>
 #include <QJsonDocument>
@@ -15,12 +13,11 @@
 #include <QDir>
 #include <QDebug>
 #include <QMessageBox>
-#include <QVector>
 #include <organizationswindow.h>
 #include <QListWidget>
 #include <allserverusers.h>
 #include <orgdialog.h>
-
+#include <QTcpSocket>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -35,17 +32,26 @@ class ToDoList : public QMainWindow
 public:
     ToDoList(QWidget *parent = nullptr);
     ~ToDoList();
-    void makeOrgFiles(QString);
-    void removeOrgFiles(QString);
+
     void makeOrganizationsFile();    
     void saveOrganizations();
     void loadOrganizations();
+    void searchOrganizations();
+    void thisUserMaker (QString username, QString id , QString name);
 
 public slots:
 
-    void searchOrganizations();
+    void socket_readyRead();
+    void socket_connected();
+    void socket_bytesWritten();
+    void socket_disconnected();
+
+    void sendRequest(QString s);
+    void responseChecker(QString);
 
 private slots:
+    void connectionMaker(QTcpSocket * s);
+
     void on_add_organization_BTN_clicked();
 
     void add_organization(QString);
@@ -74,6 +80,8 @@ private slots:
 
 private:
     Ui::ToDoList *ui;
+    Person this_user;
+    QTcpSocket * connection;
 
 signals:
     void org_name_signal(QString);

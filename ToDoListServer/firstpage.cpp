@@ -5,9 +5,6 @@ FirstPage::FirstPage(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::FirstPage)
 {
-    channel.setIp(ui->ip->text());
-    channel.setPort(ui->port->text().toInt());
-
     ui->setupUi(this);
     make_data_folder();
     make_admin_file();
@@ -19,13 +16,6 @@ FirstPage::~FirstPage()
     delete ui;
 }
 
-void FirstPage::processor()
-{
-    if (channel.getMessage() == "make_data_folder")
-    {
-        make_data_folder();
-    }
-}
 
 void FirstPage::make_data_folder()
 {
@@ -118,6 +108,8 @@ void FirstPage::password_checker(QString p)
         QMessageBox ::information( this, "OK" , "Login successful!");
         ToDoList * td = new ToDoList();
         td->show();
+        Connection * connection = new Connection;
+        connection->serverTurnOn();
         this->close();
     }
     else if (password != hashed_pass  && user_correct == 1 )

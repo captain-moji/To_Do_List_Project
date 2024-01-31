@@ -6,8 +6,6 @@ ToDoList::ToDoList(QWidget *parent)
     , ui(new Ui::ToDoList)
 {
     ui->setupUi(this);
-    makeOrganizationsFile();
-    loadOrganizations();
 }
 
 ToDoList::~ToDoList()
@@ -15,65 +13,68 @@ ToDoList::~ToDoList()
     delete ui;
 }
 
-void ToDoList::makeOrgFiles(QString o)
+void ToDoList::connectionMaker(QTcpSocket * s) //QString ip, int port
 {
-    QString sPath2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + o + "/ORG_TEAMS" ;
-    QDir sDir2(sPath2);
-    if (!sDir2.exists())
-    {
-        sDir2.mkpath(".");
-    }
-
-    QString sPath3 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + o + "/ORG_PROJECTS" ;
-    QDir sDir3(sPath3);
-    if (!sDir3.exists())
-    {
-        sDir3.mkpath(".");
-    }
-
-    QString per_file = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + o + "/ORG_PERSONS.json";
-
-    QFile file(per_file);
-    if (!file.exists()) {
-        file.open(QIODevice::WriteOnly);
-    }
-    file.close();
-
-    QString team_file = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + o + "/ORG_TEAMS.json";
-    QFile file2(team_file);
-    if (!file2.exists()) {
-        file2.open(QIODevice::WriteOnly);
-        file2.close();
-    }
-
-    QString pro_file = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + o + "/ORG_PROJECTS.json";
-    QFile file3(pro_file);
-    if (!file3.exists()) {
-        file3.open(QIODevice::WriteOnly);
-        file3.close();
-    }
+    connection = s;
+    qDebug () << " we are here! ";
+    qDebug () << connection->isReadable();
+    qDebug () << connection->isWritable();
+    qDebug () << connection->peerAddress();
+    connect(connection, &QTcpSocket::connected, this, &ToDoList::socket_connected);
+    connect(connection, &QTcpSocket::readyRead, this, &ToDoList::socket_readyRead);
+    connect(connection, &QTcpSocket::bytesWritten, this, &ToDoList::socket_bytesWritten);
+    connect(connection, &QTcpSocket::disconnected, this, &ToDoList::socket_disconnected);
+    qDebug() << "socket created" ;
 }
 
-void ToDoList::removeOrgFiles(QString o)
+void ToDoList::thisUserMaker(QString username, QString id, QString name)
 {
-    QString path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + o;
-    QDir sDir(path);
-    if(sDir.exists())
-    {
-        sDir.removeRecursively();
-    }
+    this_user.perSetID(id);
+    this_user.perSetName(name);
+    this_user.perSetUsername(username);
+    ui->user_name_label->setText(this_user.perGetName());
 }
 
-void ToDoList::makeOrganizationsFile()
+void ToDoList::socket_readyRead()
 {
-    QString file_Path = QDir::currentPath() + "/APPDATA/ALL_ORGANIZATIONS.json";
-    QFile file(file_Path);
-    if (!file.exists())
+    QByteArray data = connection->readAll();
+    responseChecker(QString(data));
+}
+
+void ToDoList::socket_connected()
+{
+
+}
+
+void ToDoList::socket_bytesWritten()
+{
+
+}
+
+void ToDoList::socket_disconnected()
+{
+
+}
+
+void ToDoList::sendRequest(QString s)
+{
+    QByteArray data = s.toUtf8();
+    connection->write(data);
+}
+
+void ToDoList::responseChecker(QString s)
+{
+    QJsonDocument jsonDocument2 = QJsonDocument::fromJson(s.toUtf8());
+    QJsonObject jsonObject2 = jsonDocument2.object();
+    QString reqState = jsonObject2["res-state"].toString();
+
+    if (reqState == "user-org-list-ok")
     {
-        QFile n_file(file_Path);
-        n_file.open(QFile::WriteOnly);
-        n_file.close();
+
+
     }
+
+
 }
 
 void ToDoList::on_add_organization_BTN_clicked()
@@ -87,8 +88,8 @@ void ToDoList::on_add_organization_BTN_clicked()
 
 void ToDoList::add_organization(QString item)
 {
-    ui->todolist_organizations_list->addItem(item);
-    saveOrganizations();
+
+
 }
 
 void ToDoList::on_edit_organization_BTN_clicked()
@@ -133,11 +134,9 @@ void ToDoList::on_remove_organization_BTN_clicked()
         filename = item->text();
         delete item;
     }
-    removeOrgFiles(filename);
     saveOrganizations();
     item=nullptr;
 }
-
 
 void ToDoList::saveOrganizations()
 {
@@ -145,7 +144,6 @@ void ToDoList::saveOrganizations()
     for (int i = 0; i < ui->todolist_organizations_list->count(); ++i)
     {
             QString itemText = ui->todolist_organizations_list->item(i)->text();
-            makeOrgFiles(itemText);
             jsonArray.append(itemText);
     }
     QJsonDocument jsonDoc(jsonArray);
@@ -159,25 +157,18 @@ void ToDoList::saveOrganizations()
 
 }
 
-
 void ToDoList::loadOrganizations()
 {
-    QString file_Path = QDir::currentPath() + "/APPDATA/ALL_ORGANIZATIONS.json";
-    QFile file(file_Path);
-    file.open(QIODevice::ReadOnly);
-    QString jsonContent = file.readAll();
-    file.close();
+    QJsonObject jsonObject;
+    jsonObject["req-type"] = "user-load-orgs";
+    jsonObject["username"] = this_user.perGetUsername();
+    QJsonDocument jsonDocument(jsonObject);
+    QString req = jsonDocument.toJson(QJsonDocument::Compact);
+    sendRequest(req);
 
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonContent.toUtf8());
-    QJsonArray jsonArray = jsonDoc.array();
-
-    ui->todolist_organizations_list->clear();
-    for (const QJsonValue& value : jsonArray) {
-        if (value.isString()) {
-            ui->todolist_organizations_list->addItem(value.toString());
-        }
-    }
 }
+
+
 
 
 void ToDoList::searchOrganizations()
@@ -194,42 +185,35 @@ void ToDoList::searchOrganizations()
     }
 }
 
-
 void ToDoList::on_search_organizations_qstring_textChanged(const QString &arg1)
 {
     searchOrganizations();
 }
-
 
 void ToDoList::on_sort_organizations_BTN_clicked()
 {
     ui->todolist_organizations_list->sortItems();
 }
 
-
 void ToDoList::on_actionSort_Organizations_triggered()
 {
     on_sort_organizations_BTN_clicked();
 }
-
 
 void ToDoList::on_actionExit_triggered()
 {
     this->close();
 }
 
-
 void ToDoList::on_actionHelp_triggered()
 {
     QMessageBox ::information( this, "Help" ,"You can add, edit or remove Organizations that you want.\nAlso, when you close the program, the organizations will not destroyed!");;
 }
 
-
 void ToDoList::on_actionAbout_triggered()
 {
     QMessageBox ::information( this, "About" ,"ToDoList Manager\nVersion 1.0.0\nCreated by Moji & Mammad");;
 }
-
 
 void ToDoList::on_todolist_organizations_list_itemDoubleClicked(QListWidgetItem *item)
 {
@@ -242,7 +226,6 @@ void ToDoList::on_todolist_organizations_list_itemDoubleClicked(QListWidgetItem 
     w->loadAllOrgProjects();
     w->show();
 }
-
 
 void ToDoList::on_add_new_user_BTN_clicked()
 {

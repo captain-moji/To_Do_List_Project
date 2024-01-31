@@ -18,7 +18,6 @@ SOURCES += \
     projectswindow.cpp \
     task.cpp \
     comment.cpp \
-    connection.cpp \
     firstpage.cpp \
     login.cpp \
     main.cpp \
@@ -41,7 +40,6 @@ HEADERS += \
     projectswindow.h \
     task.h \
     comment.h \
-    connection.h \
     firstpage.h \
     login.h \
     organization.h \

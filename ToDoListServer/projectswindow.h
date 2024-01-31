@@ -9,6 +9,7 @@
 #include "organizationpersonswindow.h"
 #include <QTreeWidgetItem>
 #include <taskwindow.h>
+#include "personsandteamswindow.h"
 
 namespace Ui {
 class ProjectsWindow;
@@ -31,9 +32,13 @@ public:
     void addTeamToProject(QString);
     void loadProjectTeams();
     void removeTeamfromProject(QString);
+    void editTeamInProject(QString,QString);
 
     void AddNewTaskToProject(Task);
-
+    void loadProjectTasks();
+    void removeTaskFromProject(QString task_name);
+    void EditTaskArchive(QString task_title);
+    void EditTaskInProject(QString old_task , Task edited_task);
 
 
 private slots:
@@ -62,7 +67,25 @@ private slots:
 
     void project_task_maker(Task);
 
+    void on_remove_task_BTN_clicked();
+
+    void on_project_tasks_tree_widget_itemDoubleClicked(QTreeWidgetItem *item, int column);
+
+    void on_archive_unarchive_BTN_clicked();
+
+    void edit_project_task(Task);
+
+    void on_search_task_line_edit_textChanged(const QString &arg1);
+
+    void on_archived_checkbox_stateChanged(int arg1);
+
+    void on_not_archived_checkbox_stateChanged(int arg1);
+
+signals:
+    void this_task_maked(Task);
+
 private:
+    void search_task();
     void search_project_teams();
     void search_project_persons();
     Ui::ProjectsWindow *ui;
@@ -71,6 +94,7 @@ private:
     Task temp_task;
     QString this_org;
     Project this_project;
+    Task this_task;
 };
 
 #endif // PROJECTSWINDOW_H

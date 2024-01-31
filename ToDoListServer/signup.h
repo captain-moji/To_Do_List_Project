@@ -24,6 +24,7 @@ class Signup : public QDialog
 public:
     explicit Signup(QWidget *parent = nullptr);
     ~Signup();
+    bool isUsernameExsist(QString);
 
 signals:
     void username_completed (QString);
@@ -34,7 +35,6 @@ signals:
 
 private slots:
     bool isPassCorrect(QString);
-    bool isUsernameExsist(QString);
     void on_signup_ok_BTN_clicked();
     void on_signup_cancel_BTN_clicked();
 

@@ -72,12 +72,6 @@ void allServerUsers:: person_saver()
 
         file.open(QIODevice::WriteOnly);
         file.close();
-        qDebug() <<"PER.json crreated:";
-    }
-
-    else
-    {
-        qDebug() <<"PER.json exsist:";
     }
 
     if (file.open(QIODevice::ReadOnly)) {

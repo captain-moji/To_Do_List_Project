@@ -1,4 +1,5 @@
 QT       += core gui
+QT       += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -10,10 +11,12 @@ CONFIG += c++17
 
 SOURCES += \
     allserverusers.cpp \
+    connection.cpp \
     organizationpersonswindow.cpp \
     organizationswindow.cpp \
     orgdialog.cpp \
     orgperson.cpp \
+    personsandteamswindow.cpp \
     projectswindow.cpp \
     task.cpp \
     comment.cpp \
@@ -32,10 +35,12 @@ SOURCES += \
 
 HEADERS += \
     allserverusers.h \
+    connection.h \
     organizationpersonswindow.h \
     organizationswindow.h \
     orgdialog.h \
     orgperson.h \
+    personsandteamswindow.h \
     projectswindow.h \
     task.h \
     comment.h \
@@ -53,11 +58,13 @@ HEADERS += \
 
 FORMS += \
     allserverusers.ui \
+    connection.ui \
     firstpage.ui \
     login.ui \
     organizationpersonswindow.ui \
     organizationswindow.ui \
     orgdialog.ui \
+    personsandteamswindow.ui \
     projectswindow.ui \
     signup.ui \
     taskwindow.ui \

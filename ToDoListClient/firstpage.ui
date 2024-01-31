@@ -49,7 +49,17 @@
      <widget class="QWidget" name="widget" native="true">
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
-        <widget class="QLabel" name="label">
+        <widget class="QLabel" name="ip_label">
+         <property name="layoutDirection">
+          <enum>Qt::RightToLeft</enum>
+         </property>
+         <property name="text">
+          <string>IP:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="port_label">
          <property name="layoutDirection">
           <enum>Qt::RightToLeft</enum>
          </property>
@@ -59,23 +69,23 @@
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QLineEdit" name="port"/>
+        <widget class="QLineEdit" name="ip_text_edit"/>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="layoutDirection">
-          <enum>Qt::RightToLeft</enum>
-         </property>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="port_text_edit"/>
+       </item>
+       <item row="2" column="1">
+        <widget class="QPushButton" name="set_server_BTN">
          <property name="text">
-          <string>IP:</string>
+          <string>Set Server</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="ip"/>
-       </item>
       </layout>
      </widget>
+    </item>
+    <item>
+     <widget class="QTextEdit" name="textEdit"/>
     </item>
     <item>
      <widget class="QWidget" name="widget_2" native="true">

@@ -61,7 +61,7 @@
           <enum>QTabWidget::Triangular</enum>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <property name="documentMode">
           <bool>true</bool>
@@ -296,6 +296,13 @@
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="archive_unarchive_BTN">
+                <property name="text">
+                 <string>archive / unarchive</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="remove_task_BTN">
                 <property name="text">
                  <string>Remove Task</string>
@@ -320,6 +327,9 @@
                 <property name="text">
                  <string>Tilte</string>
                 </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
                </widget>
               </item>
               <item>
@@ -330,12 +340,19 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="search_task_line_edit"/>
+               <widget class="QLineEdit" name="search_task_line_edit">
+                <property name="placeholderText">
+                 <string>search ...</string>
+                </property>
+               </widget>
               </item>
               <item>
                <widget class="QCheckBox" name="archived_checkbox">
                 <property name="text">
                  <string>archived</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -343,6 +360,12 @@
                <widget class="QCheckBox" name="not_archived_checkbox">
                 <property name="text">
                  <string>not archived</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>

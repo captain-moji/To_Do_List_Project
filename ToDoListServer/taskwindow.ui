@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>794</width>
-    <height>579</height>
+    <width>786</width>
+    <height>618</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,6 +32,36 @@
      </widget>
     </item>
     <item>
+     <widget class="QWidget" name="widget_9" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <item>
+        <widget class="QLabel" name="archive_label">
+         <property name="text">
+          <string>archived:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="archive_combobox">
+         <property name="currentText">
+          <string>No</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>No</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Yes</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
      <widget class="QWidget" name="widget_6" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout_5">
        <item>
@@ -44,7 +74,7 @@
        <item>
         <widget class="QComboBox" name="Priority_combobox">
          <property name="currentText">
-          <string>Normal</string>
+          <string>Low</string>
          </property>
          <item>
           <property name="text">
@@ -96,8 +126,7 @@
           </font>
          </property>
          <property name="plainText">
-          <string>test 
-</string>
+          <string/>
          </property>
          <property name="overwriteMode">
           <bool>false</bool>
@@ -118,7 +147,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QDateEdit" name="date_edit"/>
+        <widget class="QDateEdit" name="date_edit">
+         <property name="currentSection">
+          <enum>QDateTimeEdit::DaySection</enum>
+         </property>
+         <property name="displayFormat">
+          <string>yyyy-MM-dd</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -222,7 +258,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>794</width>
+     <width>786</width>
      <height>26</height>
     </rect>
    </property>
