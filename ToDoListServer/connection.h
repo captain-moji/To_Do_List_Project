@@ -1,45 +1,55 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-#include <QTcpSocket>
-#include <QTcpServer>
+#include <QMainWindow>
 #include <QObject>
-#include <QMessageBox>
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QDir>
+#include <QList>
+#include <QJsonArray>
 
-class Connection : public QObject
+namespace Ui {
+class Connection;
+}
+
+class Connection : public QMainWindow
 {
     Q_OBJECT
-
 public:
-    Connection();
+
+    void serverTurnOn();
+    void serverTurnOff();
+    void serverResponse(QString);
+    void serverReqActions(QString);
+    explicit Connection(QWidget *parent = nullptr);
     ~Connection();
-    void setIp(QString);
-    QString getIp() const;
-    void setPort(int);
-    int getPort() const;
-    void setMessage(QString);
-    QString getMessage() const;
+
 
 public slots:
     void server_newConnection();
-
     void socket_readyRead();
     void socket_bytesWritten();
     void socket_disConnected();
 
-// private slots:
-    void connectSlot();
+private slots:
 
-    void sendSlot();
+    void login_user(QString,QString);
+    void signup_user(QString, QString , QString, QString, QString);
+    void load_user_organizations(QString);
 
-    void disconnectSlot();
 
+    void on_pushButton_clicked();
 
 private:
-    QString ip;
-    int port;
-    QString message;
+    int port = 1234;
+    QString resp;
+    QTcpServer *server = nullptr;
     QTcpSocket *socket = nullptr;
-    QTcpServer *server = nullptr;};
+
+    Ui::Connection *ui;
+};
 
 #endif // CONNECTION_H

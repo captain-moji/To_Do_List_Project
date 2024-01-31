@@ -22,6 +22,7 @@ signals:
 private slots:
     void on_login_page_BTN_accepted();
 
+
 private:
     Ui::Login *ui;
 };

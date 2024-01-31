@@ -97,7 +97,6 @@ void Signup::on_signup_ok_BTN_clicked()
         emit question_completed(ui->signup_question_selector->currentText());
         emit answer_completed(ui->signup_answer_line_edit->text());
         emit name_completed(ui->signup_name_line_edit->text());
-        QMessageBox ::information( this, "OK" , "sign up successful!");
         this->close();
     }
 }

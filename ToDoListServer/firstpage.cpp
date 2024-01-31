@@ -108,6 +108,8 @@ void FirstPage::password_checker(QString p)
         QMessageBox ::information( this, "OK" , "Login successful!");
         ToDoList * td = new ToDoList();
         td->show();
+        Connection * connection = new Connection;
+        connection->serverTurnOn();
         this->close();
     }
     else if (password != hashed_pass  && user_correct == 1 )

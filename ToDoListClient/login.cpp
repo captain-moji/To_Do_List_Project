@@ -18,4 +18,3 @@ void Login::on_login_page_BTN_accepted()
     emit username_readed(ui->login_username_line_edit->text());
     emit password_readed(ui->login_password_line_edit->text());
 }
-
