@@ -14,7 +14,7 @@
 #include <QMessageBox>
 #include <todolist.h>
 #include <QCryptographicHash>
-
+#include <connection.h>
 
 namespace Ui {
 class FirstPage;
