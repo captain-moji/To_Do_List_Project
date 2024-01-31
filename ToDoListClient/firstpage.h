@@ -35,6 +35,7 @@ public slots:
     void socket_disconnected();
 
 private slots:
+    void resetPassword(QString);
 
     void on_first_page_login_BTN_clicked();
     void username_checker(QString);
@@ -50,6 +51,11 @@ private slots:
     void on_set_server_BTN_clicked();
     void sendRequest(QString s);
     void responseChecker(QString);
+    void questionAnswerChecker(QString, QString, QString);
+
+    void send_reset_req(QString);
+    void get_answer(QString);
+    void send_new_password(QString);
 
 private:
 
