@@ -38,7 +38,9 @@ private slots:
 
     void login_user(QString,QString);
     void signup_user(QString, QString , QString, QString, QString);
+    void send_user_question (QString username);
     void load_user_organizations(QString);
+    void change_user_password(QString, QString);
 
 
     void on_pushButton_clicked();

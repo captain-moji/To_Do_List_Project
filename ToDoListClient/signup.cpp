@@ -7,12 +7,28 @@ Signup::Signup(QWidget *parent)
     , ui(new Ui::Signup)
 {
     ui->setupUi(this);
-    make_persons_file();
+    ui->reset_password_BTN->hide();
 }
 
 Signup::~Signup()
 {
     delete ui;
+}
+
+void Signup::resetPasswordType()
+{
+    ui->signup_ok_BTN->hide();
+    ui->signup_name_line_edit->hide();
+    ui->signup_username_line_edit->hide();
+    ui->signup_question_selector->hide();
+    ui->signup_answer_line_edit->hide();
+    ui->reset_password_BTN->show();
+    ui->label->hide();
+    ui->label_2->hide();
+    ui->label_3->setText("New Password:");
+    ui->label_4->hide();
+    ui->label_5->hide();
+    this->resize(500, 240);
 }
 
 bool Signup::isPassCorrect(QString pass)
@@ -47,32 +63,32 @@ bool Signup::isUsernameExsist(QString username)
     QString per_file = QDir::currentPath() + "/APPDATA/ALL_PERSONS.json";
     QFile file(per_file);
 
-        if (!file.open(QIODevice::ReadOnly)) {
-            return false;
-        }
-
-        QByteArray jsonData = file.readAll();
-        file.close();
-
-        QJsonDocument jsonDocument = QJsonDocument::fromJson(jsonData);
-        if (!jsonDocument.isArray()) {
-            return false;
-        }
-
-        QJsonArray jsonArray = jsonDocument.array();
-
-        for (const QJsonValue& value : jsonArray) {
-            if (value.isObject()) {
-                QJsonObject jsonObject = value.toObject();
-                QString jsonUsername = jsonObject.value("username").toString();
-
-                if (jsonUsername == username) {
-                    return true;
-                }
-            }
-        }
+    if (!file.open(QIODevice::ReadOnly)) {
         return false;
     }
+
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonDocument jsonDocument = QJsonDocument::fromJson(jsonData);
+    if (!jsonDocument.isArray()) {
+        return false;
+    }
+
+    QJsonArray jsonArray = jsonDocument.array();
+
+    for (const QJsonValue& value : jsonArray) {
+        if (value.isObject()) {
+            QJsonObject jsonObject = value.toObject();
+            QString jsonUsername = jsonObject.value("username").toString();
+
+            if (jsonUsername == username) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 void Signup::on_signup_ok_BTN_clicked()
 {
@@ -119,4 +135,23 @@ void Signup::make_persons_file()
     }
 }
 
+
+
+void Signup::on_reset_password_BTN_clicked()
+{
+    if (ui->signup_password_line_edit->text()=="")
+    {
+        QMessageBox ::warning(this, "Error!" , "password field is required!");
+    }
+
+    else if (Signup::isPassCorrect (ui->signup_password_line_edit->text()) == false)
+    {
+        QMessageBox ::warning( this, "Error!" , "Password must Have: \na a-z letter\na A-Z letter\na Number\n8-12 characters");
+    }
+    else
+    {
+        emit reset_password(ui->signup_password_line_edit->text());
+        this->close();
+    }
+}
 
