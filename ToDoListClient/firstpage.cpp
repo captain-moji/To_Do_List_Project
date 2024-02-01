@@ -75,11 +75,13 @@ void FirstPage::responseChecker(QString response)
         ToDoList * t = new ToDoList();
         this->close();
         t->show();
-        connect(this,SIGNAL(socket_signal(QTcpSocket*)) ,t, SLOT(connectionMaker(QTcpSocket*)));
-        emit socket_signal(socket);
-        //t->connectionMaker(ip,port);
+        socket->close();
+        t->connectionMaker(ip,port);
+        //connect(this,SIGNAL(socket_signal(QTcpSocket*)) ,t, SLOT(connectionMaker(QTcpSocket*)));
+        //emit socket_signal(socket);
+
         t->thisUserMaker(jsonObject["username"].toString(),jsonObject["id"].toString(),jsonObject["name"].toString());
-        //t->loadOrganizations();
+        t->loadOrganizations();
     }
     if (resState == "username-not-found" || resState =="password-incorrect")
         QMessageBox::warning(this, "Error!" ,"Username or password is not correct!");
