@@ -23,6 +23,7 @@
 #include "teamswindow.h"
 #include <project.h>
 #include <projectswindow.h>
+#include <QTcpSocket>
 
 namespace Ui {
 class OrganizationsWindow;
@@ -50,9 +51,8 @@ public:
     void loadAllOrgProjects();
     void editProjectinOrganization(QString,QString);
     void removeProjectFromOrganization(QString);
-private slots:
 
-    void this_org_maker(QString);
+private slots:
 
     void add_new_person_to_organization(QString);
 
@@ -102,18 +102,35 @@ private slots:
 
     void on_projects_list_widget_itemDoubleClicked(QListWidgetItem *item);
 
+
+public slots:
+    void socket_readyRead();
+    void socket_connected();
+    void socket_bytesWritten();
+    void socket_disconnected();
+
+    void sendRequest(QString s);
+    void responseChecker(QString);
+    void connectionMaker(QString,int);  //(QTcpSocket *);
+    void this_user_maker(Person,QString);
+    void this_user_check_admin(bool res);
+    void this_org_maker(QString);
+    void load_org_persons(QString s);
+
 private:
+    QTcpSocket * socket;
+    QString this_ip;
+    int this_port;
     Organization this_org;
     Team team;
-    OrgPerson temp_org_person;
+    OrgPerson this_user;
     Project temp_project;
-    void makeAllpersonsFile();
     void search_org_user();
     void search_org_team();
     void search_org_project();
-    void makeAllProjectsFile(QString);
 
     Ui::OrganizationsWindow *ui;
+    void closeEvent(QCloseEvent *event);
 
 signals:
     void team_id_signal(QString);
