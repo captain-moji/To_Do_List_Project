@@ -10,6 +10,7 @@
 #include <QDir>
 #include <QList>
 #include <QJsonArray>
+#include <orgperson.h>
 
 namespace Ui {
 class Connection;
@@ -41,16 +42,22 @@ private slots:
     void send_user_question (QString username);
     void load_user_organizations(QString);
     void change_user_password(QString, QString);
-
+    void add_new_org(QString);
+    void add_user_to_org(bool is_admin, QString org);
+    void remove_org(QString username,QString org);
 
     void on_pushButton_clicked();
 
 private:
+
+    OrgPerson temp_org_person;
+
+
+
     int port = 1234;
     QString resp;
     QTcpServer *server = nullptr;
     QTcpSocket *socket = nullptr;
-
     Ui::Connection *ui;
 };
 

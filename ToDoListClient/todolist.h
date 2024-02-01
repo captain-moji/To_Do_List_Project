@@ -38,6 +38,7 @@ public:
     void loadOrganizations();
     void searchOrganizations();
     void thisUserMaker (QString username, QString id , QString name);
+    void showUserOrgs(QString list);
 
 public slots:
 
@@ -48,9 +49,9 @@ public slots:
 
     void sendRequest(QString s);
     void responseChecker(QString);
+    void connectionMaker(QString,int);
 
 private slots:
-    void connectionMaker(QTcpSocket * s);
 
     void on_add_organization_BTN_clicked();
 
@@ -78,9 +79,13 @@ private slots:
 
     void on_search_organizations_qstring_textChanged(const QString &arg1);
 
+    void on_Refresh_orgs_BTN_clicked();
+
 private:
     Ui::ToDoList *ui;
     Person this_user;
+    QString this_user_org_id;
+    OrgPerson this_org_person;
     QTcpSocket * connection;
 
 signals:
