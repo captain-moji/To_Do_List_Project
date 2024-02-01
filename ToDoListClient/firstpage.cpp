@@ -72,14 +72,11 @@ void FirstPage::responseChecker(QString response)
     if (resState == "login-ok")
     {
         QMessageBox ::information( this, "OK!" ,"Welcome!");
-        ToDoList * t = new ToDoList();
+        ToDoList * t = new ToDoList;
         this->close();
         t->show();
         socket->close();
         t->connectionMaker(ip,port);
-        //connect(this,SIGNAL(socket_signal(QTcpSocket*)) ,t, SLOT(connectionMaker(QTcpSocket*)));
-        //emit socket_signal(socket);
-
         t->thisUserMaker(jsonObject["username"].toString(),jsonObject["id"].toString(),jsonObject["name"].toString());
         t->loadOrganizations();
     }

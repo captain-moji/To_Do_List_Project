@@ -87,7 +87,8 @@ private:
     QString this_user_org_id;
     OrgPerson this_org_person;
     QTcpSocket * connection;
-
+    QString this_ip;
+    int this_port;
 signals:
     void org_name_signal(QString);
 

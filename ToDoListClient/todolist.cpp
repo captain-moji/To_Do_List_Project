@@ -13,15 +13,16 @@ ToDoList::~ToDoList()
     delete ui;
 }
 
-void ToDoList::connectionMaker(QString ip , int port) //QString ip, int port
+void ToDoList::connectionMaker(QString ip , int port)
 {
+    this_port = port;
+    this_ip = ip;
     connection = new QTcpSocket();
     connection->connectToHost(ip, port);
     connect(connection, &QTcpSocket::connected, this, &ToDoList::socket_connected);
     connect(connection, &QTcpSocket::readyRead, this, &ToDoList::socket_readyRead);
     connect(connection, &QTcpSocket::bytesWritten, this, &ToDoList::socket_bytesWritten);
     connect(connection, &QTcpSocket::disconnected, this, &ToDoList::socket_disconnected);
-
 }
 
 void ToDoList::thisUserMaker(QString username, QString id, QString name)
@@ -74,7 +75,6 @@ void ToDoList::responseChecker(QString s)
     if (resState == "make-org-ok")
     {
         this_user_org_id = doc.object().value("org-id").toString();
-        qDebug() << "user org id is:" << this_user_org_id;
         QMessageBox ::information(this, "OK" ,"Organization created!\nYou Are the admin!");
         loadOrganizations();
     }
@@ -256,14 +256,14 @@ void ToDoList::on_actionAbout_triggered()
 
 void ToDoList::on_todolist_organizations_list_itemDoubleClicked(QListWidgetItem *item)
 {
-    OrganizationsWindow * w = new OrganizationsWindow(this);
-    connect (this,SIGNAL(org_name_signal(QString)),w,SLOT(this_org_maker(QString)));
-    emit org_name_signal(item->text());
+    connection->disconnect();
+    OrganizationsWindow * w = new OrganizationsWindow;
     w->setWindowTitle("Organization Management");
-    w->loadAllOrgPersons();
-    w->loadAllOrgTeams();
-    w->loadAllOrgProjects();
+    this->close();
     w->show();
+    w->connectionMaker(this_ip,this_port);
+    w->this_org_maker(ui->todolist_organizations_list->currentItem()->text());
+    w->this_user_maker(this_user,this_user_org_id);
 }
 
 void ToDoList::on_add_new_user_BTN_clicked()
