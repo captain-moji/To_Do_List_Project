@@ -16,7 +16,6 @@ Connection::~Connection()
     delete ui;
 }
 
-
 void Connection::serverTurnOn()
 {
     if ( server != nullptr )
@@ -55,12 +54,9 @@ void Connection::serverTurnOff()
 
 void Connection::serverResponse(QString s)
 {
-    //if ( socket != nullptr )
-    //{
     QByteArray data = s.toUtf8();
     qDebug() << "response is: " << data;
     socket->write(data);
-    // }
 }
 
 void Connection::serverReqActions(QString received_message)
@@ -116,9 +112,38 @@ void Connection::serverReqActions(QString received_message)
         QString org_name = jsonObject["orgname"].toString();
         remove_org(temp_username,org_name);
     }
+    if (reqtype == "user-check-admin")
+    {
+        QString temp_username = jsonObject["username"].toString();
+        QString org_name = jsonObject["orgname"].toString();
+        check_org_admin(temp_username,org_name);
+    }
+    if (reqtype == "org-persons-list")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        org_persons_list_maker(org_name);
+    }
+    if (reqtype == "add-user-to-org" )
+    {
+        QString username = jsonObject["username"].toString();
+        QString org_name = jsonObject["orgname"].toString();
+        add_new_user_to_org(username,org_name);
+    }
+    if (reqtype == "remove-user-from-org")
+    {
+        QString username = jsonObject["username"].toString();
+        QString org_name = jsonObject["orgname"].toString();
+        remove_user_from_org(username,org_name);
+    }
+    if (reqtype == "change-user-role-in-org")
+    {
+        QString username = jsonObject["username"].toString();
+        QString org_name = jsonObject["orgname"].toString();
+        change_user_role_in_org(username,org_name);
+    }
+
 
 }
-
 
 void Connection::server_newConnection()
 {
@@ -138,14 +163,10 @@ void Connection::socket_readyRead()
 
 void Connection::socket_bytesWritten()
 {
-
 }
 
 void Connection::socket_disConnected()
 {
-
-
-
 }
 
 void Connection::login_user(QString username, QString password)
@@ -548,6 +569,211 @@ void Connection::remove_org(QString username,QString org)
         }
     }
 }
+
+void Connection::check_org_admin(QString username,QString org)
+{
+    QString file_Path2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+org +"/ORG_PERSONS.json";
+    QFile file(file_Path2);
+    file.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    QJsonArray jsonArray = doc.array();
+
+    bool is_admin = false;
+    for (int i = 0; i < jsonArray.size(); ++i)
+    {
+        QJsonObject obj = jsonArray[i].toObject();
+        if (obj["username"].toString() == username)
+        {
+            if (obj["is_admin"].toBool())
+            {
+                is_admin = true;
+            }
+
+            break;
+        }
+    }
+
+        if (is_admin == true)
+        {
+            QJsonObject object2;
+            object2.insert("res-state", "is-admin-checked");
+            object2.insert("is-admin", true);
+            QString newJson = QJsonDocument(object2).toJson();
+            serverResponse(newJson);
+        }
+        else
+        {
+            QJsonObject object;
+            object.insert("res-state", "is-admin-checked");
+            object.insert("is-admin", false);
+            QString newJson = QJsonDocument(object).toJson();
+            serverResponse(newJson);
+        }
+}
+
+void Connection::org_persons_list_maker(QString org)
+{
+    QString Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org + "/ORG_PERSONS.json";
+    QFile file(Path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return ;
+    }
+
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    QJsonObject obj;
+    obj["res-state"] = "org-persons-list-ok";
+    obj["org-persons"] = doc.array();
+
+    QJsonDocument resultDoc(obj);
+    QString resultString = resultDoc.toJson();
+    serverResponse(resultString);
+}
+
+void Connection::add_new_user_to_org(QString user, QString org)
+{
+    bool exsist = check_user_exsist_in_server(user,org);
+    if (exsist == false)
+    {
+        QJsonObject object;
+        object.insert("res-state", "user-not-found-in-server");
+        object.insert("message", "user with this username is not found");
+        QString newJson = QJsonDocument(object).toJson();
+        serverResponse(newJson);
+    }
+    else
+    {
+        QString per_file = QDir::currentPath() + "/APPDATA/ALL_PERSONS.json";
+        QFile file(per_file);
+        if (!file.open(QIODevice::ReadOnly))
+        {
+            return;
+        }
+
+        QByteArray jsonData = file.readAll();
+        file.close();
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
+        QJsonArray jsonArray = jsonDoc.array();
+
+        for (int i = 0; i < jsonArray.size(); ++i)
+        {
+            QJsonObject jsonObject = jsonArray.at(i).toObject();
+
+            QString username = jsonObject.value("username").toString();
+            QString name = jsonObject.value("name").toString();
+            QString id = jsonObject.value("id").toString();
+
+            if (username == user)
+            {
+                temp_org_person.perSetID(id);
+                temp_org_person.perSetName(name);
+                temp_org_person.perSetUsername(username);
+                temp_org_person.orgPerSetID(temp_org_person.orgIdGenerator());
+                temp_org_person.orgPerSetIsAdmin(false);
+                break;
+            }
+        }
+
+        QString file_Path2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+org+"/ORG_PERSONS.json";
+        QFile file2(file_Path2);
+        file2.open(QIODevice::ReadWrite);
+
+        QByteArray jsonData2 = file2.readAll();
+        QJsonDocument jsonDoc2 = QJsonDocument::fromJson(jsonData2);
+        QJsonArray jsonArray2 = jsonDoc2.array();
+        bool already_exsist = false;
+        for (int i = 0; i < jsonArray2.size(); ++i)
+        {
+            QJsonObject jsonObject = jsonArray2.at(i).toObject();
+            if (jsonObject.value("username").toString() == user)
+            {
+                file.close();
+                already_exsist = true;
+            }
+        }
+
+        if (already_exsist == false)
+        {
+            QJsonObject newJsonObject;
+            newJsonObject["id"] = temp_org_person.perGetId();
+            newJsonObject["org_id"] = temp_org_person.orgPerGetId();
+            newJsonObject["name"] = temp_org_person.perGetName();
+            newJsonObject["username"] = temp_org_person.perGetUsername();
+            newJsonObject["is_admin"] = temp_org_person.orgPerGetIsAdmin();
+
+            jsonArray2.append(newJsonObject);
+            jsonDoc.setArray(jsonArray2);
+            file2.resize(0);
+            file2.write(jsonDoc.toJson());
+            file2.close();
+
+
+            QJsonObject object;
+            object.insert("res-state", "user-added-to-org");
+            object.insert("message", "The user Has been added to organization");
+            QString newJson = QJsonDocument(object).toJson();
+            serverResponse(newJson);
+        }
+        else
+        {
+            QJsonObject object;
+            object.insert("res-state", "user-not-found-in-server");
+            object.insert("message", "this user allready exsist in organization");
+            QString newJson = QJsonDocument(object).toJson();
+            serverResponse(newJson);
+        }
+    }
+}
+
+bool Connection::check_user_exsist_in_server(QString username, QString org)
+{
+    QString file_Path = QDir::currentPath() + "/APPDATA/ALL_PERSONS.json";
+    QFile file(file_Path);
+    file.open(QIODevice::ReadOnly);
+
+    QByteArray jsonData = file.readAll();
+    QJsonDocument doc(QJsonDocument::fromJson(jsonData));
+    QJsonArray jsonArray = doc.array();
+
+    for (const QJsonValue& value : jsonArray) {
+        QJsonObject obj = value.toObject();
+        if (obj["username"].toString() == username) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Connection::remove_user_from_org(QString user, QString org)
+{
+    OrganizationsWindow * t = new OrganizationsWindow;
+    t->this_org_maker(org);
+    t->removeUserFromOrganization(user);
+    QJsonObject object;
+    object.insert("res-state", "user-remove-from-org-ok");
+    object.insert("message", "user has been deleted from org!");
+    QString newJson = QJsonDocument(object).toJson();
+    serverResponse(newJson);
+}
+
+void Connection::change_user_role_in_org(QString user, QString org)
+{
+    OrganizationsWindow * t = new OrganizationsWindow;
+    t->this_org_maker(org);
+    t->promoteToAdmin(user);
+    QJsonObject object;
+    object.insert("res-state", "user-role-changed-ok");
+    object.insert("message", "changed!");
+    QString newJson = QJsonDocument(object).toJson();
+    serverResponse(newJson);
+}
+
+
 
 void Connection::on_pushButton_clicked()
 {

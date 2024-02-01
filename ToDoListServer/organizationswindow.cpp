@@ -214,8 +214,6 @@ void OrganizationsWindow::promoteToAdmin(QString user)
         emit org_name_signal(this_org.orgGetName());
         w->changeOrgPersonRole(user);
     }
-
-
 }
 
 

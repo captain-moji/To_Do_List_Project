@@ -50,9 +50,12 @@ public:
     void loadAllOrgProjects();
     void editProjectinOrganization(QString,QString);
     void removeProjectFromOrganization(QString);
-private slots:
+
+public slots:
 
     void this_org_maker(QString);
+
+private slots:
 
     void add_new_person_to_organization(QString);
 

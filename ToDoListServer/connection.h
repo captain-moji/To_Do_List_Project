@@ -45,6 +45,12 @@ private slots:
     void add_new_org(QString);
     void add_user_to_org(bool is_admin, QString org);
     void remove_org(QString username,QString org);
+    void check_org_admin(QString username,QString org);
+    void org_persons_list_maker(QString org);
+    void add_new_user_to_org(QString,QString);
+    bool check_user_exsist_in_server(QString username, QString org);
+    void remove_user_from_org(QString,QString);
+    void change_user_role_in_org(QString user, QString org);
 
     void on_pushButton_clicked();
 
