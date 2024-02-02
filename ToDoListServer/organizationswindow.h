@@ -105,6 +105,8 @@ private slots:
 
     void on_projects_list_widget_itemDoubleClicked(QListWidgetItem *item);
 
+    void on_tabWidget_currentChanged(int index);
+
 private:
     Organization this_org;
     Team team;

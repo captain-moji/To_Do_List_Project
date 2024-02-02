@@ -41,10 +41,12 @@ public:
     void EditTaskInProject(QString old_task , Task edited_task);
 
 
-private slots:
-
+public slots:
     void this_org_maker(QString);
     void this_project_maker (QString);
+private slots:
+
+
     void add_project_person (QString);
 
     void on_projects_add_person_BTN_clicked();
