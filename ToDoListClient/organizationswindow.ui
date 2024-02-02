@@ -199,6 +199,11 @@
                <string>is Admin</string>
               </property>
              </column>
+             <column>
+              <property name="text">
+               <string>ID</string>
+              </property>
+             </column>
             </widget>
            </item>
            <item>
@@ -310,7 +315,21 @@
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="QListWidget" name="teams_list_widget"/>
+            <widget class="QTreeWidget" name="teams_tree_widget">
+             <property name="sortingEnabled">
+              <bool>true</bool>
+             </property>
+             <column>
+              <property name="text">
+               <string>Team name</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Team ID</string>
+              </property>
+             </column>
+            </widget>
            </item>
            <item>
             <widget class="QWidget" name="widget_2" native="true">
@@ -343,13 +362,6 @@
             <widget class="QWidget" name="widget_4" native="true">
              <layout class="QHBoxLayout" name="horizontalLayout_5">
               <item>
-               <widget class="QPushButton" name="sort_teams_BTN">
-                <property name="text">
-                 <string>Sort teams</string>
-                </property>
-               </widget>
-              </item>
-              <item>
                <widget class="QLineEdit" name="search_teams_line_edit">
                 <property name="placeholderText">
                  <string>search ...</string>
@@ -367,7 +379,18 @@
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QListWidget" name="projects_list_widget"/>
+            <widget class="QTreeWidget" name="projects_tree_widget">
+             <column>
+              <property name="text">
+               <string>Project Name</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Project Admin</string>
+              </property>
+             </column>
+            </widget>
            </item>
            <item>
             <widget class="QWidget" name="widget_3" native="true">

@@ -93,6 +93,15 @@ void ToDoList::responseChecker(QString s)
         item=nullptr;
         loadOrganizations();
     }
+    if (resState =="edit-org-failed")
+    {
+        QMessageBox ::warning(this, "Errot" ,"You Do NOT have permission!");
+    }
+    if (resState == "edit-org-ok")
+    {
+        QMessageBox ::information(this, "OK" ,"The organization Edited!");
+        loadOrganizations();
+    }
 }
 
 
@@ -143,23 +152,14 @@ void ToDoList::on_edit_organization_BTN_clicked()
 
 void ToDoList::edit_organization(QString a)
 {
-    QString old_name ;
-    QListWidgetItem *item = ui->todolist_organizations_list->currentItem();
-    if (item != nullptr)
-    {
-        old_name= item->text();
-        item->setText(a);
-    }
-
-    QString path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + old_name;
-    QString newpath = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + a;
-
-    QDir sDir(path);
-    if(sDir.exists())
-    {
-        sDir.rename(path,newpath);
-    }
-    saveOrganizations();
+    QJsonObject jsonObject;
+    jsonObject["req-type"] = "edit-org";
+    jsonObject["username"] = this_user.perGetUsername();
+    jsonObject["old_orgname"] = ui->todolist_organizations_list->currentItem()->text();
+    jsonObject["new_orgname"] = a;
+    QJsonDocument jsonDocument(jsonObject);
+    QString req = jsonDocument.toJson(QJsonDocument::Compact);
+    sendRequest(req);
 }
 
 void ToDoList::on_remove_organization_BTN_clicked()
@@ -271,8 +271,6 @@ void ToDoList::on_add_new_user_BTN_clicked()
     allServerUsers* s = new allServerUsers(this);
     s->show();
 }
-
-
 
 void ToDoList::on_Refresh_orgs_BTN_clicked()
 {

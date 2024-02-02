@@ -112,6 +112,13 @@ void Connection::serverReqActions(QString received_message)
         QString org_name = jsonObject["orgname"].toString();
         remove_org(temp_username,org_name);
     }
+    if (reqtype == "edit-org")
+    {
+        QString temp_username = jsonObject["username"].toString();
+        QString old_org_name = jsonObject["old_orgname"].toString();
+        QString new_org_name = jsonObject["new_orgname"].toString();
+        edit_org(temp_username,old_org_name,new_org_name);
+    }
     if (reqtype == "user-check-admin")
     {
         QString temp_username = jsonObject["username"].toString();
@@ -141,8 +148,35 @@ void Connection::serverReqActions(QString received_message)
         QString org_name = jsonObject["orgname"].toString();
         change_user_role_in_org(username,org_name);
     }
-
-
+    if (reqtype == "load-org-teams")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        load_org_teams(org_name);
+    }
+    if (reqtype == "add-team-to-org")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        QString team_name = jsonObject["team_name"].toString();
+        add_team_to_org(team_name,org_name);
+    }
+    if (reqtype == "remove-a-team-from-org")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        QString team_name = jsonObject["team_name"].toString();
+        remove_team_from_org(team_name,org_name);
+    }
+    if (reqtype == "edit-team-in-org")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        QString team_new_name = jsonObject["team_new_name"].toString();
+        QString team_old_name = jsonObject["team_old_name"].toString();
+        edit_team_in_org(team_new_name,team_old_name,org_name);
+    }
+    if (reqtype == "load-org-projects")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        load_org_projects(org_name);
+    }
 }
 
 void Connection::server_newConnection()
@@ -570,6 +604,88 @@ void Connection::remove_org(QString username,QString org)
     }
 }
 
+
+void Connection::edit_org(QString user,QString old_org_name,QString new_org_name)
+{
+    QString file_Path2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+old_org_name +"/ORG_PERSONS.json";
+    QFile file(file_Path2);
+    file.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    QJsonArray jsonArray = doc.array();
+
+    bool found = false;
+    bool is_admin = false;
+    for (int i = 0; i < jsonArray.size(); ++i)
+    {
+        QJsonObject obj = jsonArray[i].toObject();
+        if (obj["username"].toString() == user)
+        {
+            found = true;
+            if (obj["is_admin"].toBool())
+            {
+                is_admin = true;
+            }
+            else
+                is_admin = false;
+
+            break;
+        }
+    }
+
+    if (is_admin == true)
+    {
+
+        QString path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + old_org_name;
+        QString newpath = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + new_org_name;
+        QDir sDir(path);
+        if(sDir.exists())
+        {
+            sDir.rename(path,newpath);
+        }
+
+        QString file_Path = QDir::currentPath() + "/APPDATA/ALL_ORGANIZATIONS.json";
+        QFile file(file_Path);
+        file.open(QIODevice::ReadOnly);
+        QByteArray jsonData = file.readAll();
+        file.close();
+
+            QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+            QJsonArray jsonArray = doc.array();
+
+            for (int i = 0; i < jsonArray.size(); ++i)
+            {
+                if (jsonArray[i].toString() == old_org_name)
+                {
+                    jsonArray[i] = new_org_name;
+                    break;
+                }
+            }
+            QFile saveFile(file_Path);
+            saveFile.open(QIODevice::WriteOnly);
+            QJsonDocument saveDoc(jsonArray);
+            saveFile.write(saveDoc.toJson());
+            saveFile.close();
+
+            QJsonObject object2;
+            object2.insert("res-state", "edit-org-ok");
+            object2.insert("message", "Organization Edited!");
+            QString newJson = QJsonDocument(object2).toJson();
+            serverResponse(newJson);
+    }
+    else
+    {
+            QJsonObject object;
+            object.insert("res-state", "edit-org-failed");
+            object.insert("message", "You do Not have permission!");
+            QString newJson = QJsonDocument(object).toJson();
+            serverResponse(newJson);
+    }
+
+}
+
 void Connection::check_org_admin(QString username,QString org)
 {
     QString file_Path2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+org +"/ORG_PERSONS.json";
@@ -772,6 +888,137 @@ void Connection::change_user_role_in_org(QString user, QString org)
     QString newJson = QJsonDocument(object).toJson();
     serverResponse(newJson);
 }
+
+void Connection::load_org_teams(QString org)
+{
+    QString Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org + "/ORG_TEAMS.json";
+    QFile file(Path);
+    file.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file.readAll();
+    file.close();
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    QJsonObject obj;
+    obj["res-state"] = "org-teams-list-ok";
+    obj["org-teams"] = doc.array();
+    QJsonDocument newDoc(obj);
+    QString jsonString = QString::fromUtf8(newDoc.toJson());
+    serverResponse(jsonString);
+}
+
+void Connection::add_team_to_org(QString team_name, QString org)
+{
+    bool exist = check_team_exsist_in_org(team_name,org);
+
+    if (exist == false)
+    {
+        OrganizationsWindow *s = new OrganizationsWindow;
+        s->this_org_maker(org);
+        s->addTeamToOrganization(team_name);
+
+        QJsonObject object;
+        object.insert("res-state", "team-add-to-org-ok");
+        object.insert("message", "Team added to organization!");
+        QString newJson = QJsonDocument(object).toJson();
+        serverResponse(newJson);
+    }
+    else
+    {
+        QJsonObject object;
+        object.insert("res-state", "team-add-to-org-failed");
+        object.insert("message", "Team name is exsist!\nTry another name!");
+        QString newJson = QJsonDocument(object).toJson();
+        serverResponse(newJson);
+    }
+}
+
+bool Connection::check_team_exsist_in_org(QString team_name, QString org)
+{
+    QString Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org + "/ORG_TEAMS.json";
+    QFile file(Path);
+    file.open(QIODevice::ReadOnly);
+
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    QJsonArray jsonArray = doc.array();
+
+    for (const QJsonValue &value : jsonArray) {
+        QJsonObject obj = value.toObject();
+        if (obj["team_name"].toString() == team_name) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Connection::remove_team_from_org(QString team_name, QString org)
+{
+    OrganizationsWindow *s = new OrganizationsWindow;
+    s->this_org_maker(org);
+    s->removeTeamFromOrganization(team_name);
+    QJsonObject object;
+    object.insert("res-state", "team-removed-from-org-ok");
+    object.insert("message", "Team Removed from organization!");
+    QString newJson = QJsonDocument(object).toJson();
+    serverResponse(newJson);
+}
+
+void Connection::edit_team_in_org(QString new_name, QString old_name,QString org)
+{
+    OrganizationsWindow *s = new OrganizationsWindow;
+    s->this_org_maker(org);
+    s->editTeaminOrganization(old_name,new_name);
+
+    QString Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org + "/ORG_TEAMS.json";
+    QFile file(Path);
+    file.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file.readAll();
+    file.close();
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    QJsonArray jsonArray = doc.array();
+
+    for (int i = 0; i < jsonArray.size(); ++i) {
+        QJsonObject obj = jsonArray[i].toObject();
+        if (obj["team_name"].toString() == old_name) {
+            obj["team_name"] = new_name;
+            jsonArray[i] = obj;
+            break;
+        }
+    }
+
+    QJsonDocument newDoc(jsonArray);
+
+    QFile newFile(Path);
+    newFile.open(QIODevice::WriteOnly);
+    newFile.write(newDoc.toJson());
+    newFile.close();
+
+    QJsonObject object;
+    object.insert("res-state", "team-edited-in-org-ok");
+    object.insert("message", "Team name Edited!");
+    QString newJson = QJsonDocument(object).toJson();
+    serverResponse(newJson);
+}
+
+void Connection::load_org_projects(QString org_name)
+{
+    QString Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org_name + "/ORG_PROJECTS.json";
+    QFile file(Path);
+    file.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file.readAll();
+    file.close();
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    QJsonObject obj;
+    obj["res-state"] = "org-projects-list-ok";
+    obj["org-projects"] = doc.array();
+    QJsonDocument newDoc(obj);
+    QString jsonString = QString::fromUtf8(newDoc.toJson());
+    serverResponse(jsonString);
+
+}
+
+
 
 
 
