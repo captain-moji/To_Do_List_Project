@@ -78,8 +78,6 @@ private slots:
   
     void on_edit_team_name_BTN_clicked();
   
-    void on_teams_list_widget_itemDoubleClicked(QListWidgetItem *item);
-
     QString getTeamIdByName(QString name);
 
     void on_search_teams_line_edit_textChanged(const QString &arg1);
@@ -98,12 +96,22 @@ private slots:
 
     void on_search_projects_line_edit_textChanged(const QString &arg1);
 
-    void on_sort_projects_BTN__clicked();
-
-    void on_projects_list_widget_itemDoubleClicked(QListWidgetItem *item);
-
-
     void on_tabWidget_currentChanged(int index);
+
+    void on_teams_tree_widget_itemDoubleClicked(QTreeWidgetItem *item, int column);
+
+    void on_projects_tree_widget_itemDoubleClicked(QTreeWidgetItem *item, int column);
+
+    void org_team_show(QString user, QString name, QString id, QString org_id, QString team_id , bool team_admin , bool org_admin);
+
+    void org_team_show_to_org_admin();
+
+    void show_org_project_to_project_admin(QString);
+
+    void show_org_project_to_admin(QString);
+
+    void show_org_project_to_member (QString username , QString name, QString id, QString org_id, bool is_member , bool is_team_member);
+
 
 public slots:
     void socket_readyRead();
@@ -113,7 +121,8 @@ public slots:
 
     void sendRequest(QString s);
     void responseChecker(QString);
-    void connectionMaker(QString,int);  //(QTcpSocket *);
+    void connectionMaker(QString,int);
+
     void this_user_maker(Person,QString);
     void this_user_check_admin(bool res);
     void this_org_maker(QString);

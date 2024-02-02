@@ -28,6 +28,7 @@ public:
 
 signals:
     void name_readed(QString);
+
 private slots:
     void on_page_BTN_accepted();
     bool is_exsist(QString);
