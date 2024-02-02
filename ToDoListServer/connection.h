@@ -11,6 +11,9 @@
 #include <QList>
 #include <QJsonArray>
 #include <orgperson.h>
+#include <signup.h>
+#include <person.h>
+#include <projectswindow.h>
 
 namespace Ui {
 class Connection;
@@ -58,6 +61,10 @@ private slots:
     void remove_team_from_org(QString,QString);
     void edit_team_in_org(QString new_name, QString old_name,QString org);
     void load_org_projects(QString org_name);
+    void add_project_to_org(QString proj_name,QString org_name);
+    bool check_project_exsist_in_org(QString proj_name, QString org);
+    void edit_project_in_org(QString proj_old_name,QString proj_new_name,QString org_name);
+    void remove_project_from_org(QString proj_name, QString org);
 
 
     void on_pushButton_clicked();

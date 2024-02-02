@@ -50,41 +50,34 @@
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
         <widget class="QWidget" name="widget_3" native="true">
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="ip_label">
-            <property name="layoutDirection">
-             <enum>Qt::RightToLeft</enum>
-            </property>
-            <property name="text">
-             <string>IP:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>50</height>
+          </size>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
            <widget class="QLabel" name="port_label">
             <property name="layoutDirection">
              <enum>Qt::RightToLeft</enum>
             </property>
             <property name="text">
-             <string>Port:</string>
+             <string>Server Port:</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="ip_text_edit"/>
-          </item>
-          <item row="1" column="1">
+          <item>
            <widget class="QLineEdit" name="port_text_edit"/>
           </item>
-          <item row="2" column="1">
-           <widget class="QPushButton" name="set_server_BTN">
-            <property name="text">
-             <string>Set Server</string>
-            </property>
-           </widget>
-          </item>
          </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="set_server_BTN">
+         <property name="text">
+          <string>Set Port</string>
+         </property>
         </widget>
        </item>
       </layout>
