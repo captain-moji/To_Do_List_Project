@@ -9,6 +9,8 @@
 #include "organizationpersonswindow.h"
 #include <QTreeWidgetItem>
 #include <taskwindow.h>
+#include <QTcpSocket>
+
 
 namespace Ui {
 class ProjectsWindow;
@@ -25,7 +27,7 @@ public:
     void loadProjectPersons();
     void removeProjectPerson(QString);
     void changeProjectAdmin(QString);
-    void thisProjectShowAdmin();
+    void thisProjectShowAdmin(QString);
 
     void loadOrgTeamsComboBox();
     void addTeamToProject(QString);
@@ -36,10 +38,23 @@ public:
 
 
 
+public slots:
+    void this_project_maker (QString);
+    void this_org_maker(QString);
+    void project_this_person_maker (OrgPerson);
+    void project_admin_access_maker (bool);
+
+    void socket_readyRead();
+    void socket_connected();
+    void socket_bytesWritten();
+    void socket_disconnected();
+
+    void sendRequest(QString s);
+    void responseChecker(QString);
+    void connectionMaker(QString,int);
+
 private slots:
 
-    void this_org_maker(QString);
-    void this_project_maker (QString);
     void add_project_person (QString);
 
     void on_projects_add_person_BTN_clicked();
@@ -62,7 +77,16 @@ private slots:
 
     void project_task_maker(Task);
 
+    void closeEvent(QCloseEvent *event);
+
 private:
+    bool admin_access;
+
+    OrgPerson this_person;
+    QTcpSocket * socket;
+    QString this_ip;
+    int this_port;
+
     void search_project_teams();
     void search_project_persons();
     Ui::ProjectsWindow *ui;
@@ -71,6 +95,10 @@ private:
     Task temp_task;
     QString this_org;
     Project this_project;
+    QString this_project_admin;
+
+signals:
+    void reconnect (QString,int);
 };
 
 #endif // PROJECTSWINDOW_H

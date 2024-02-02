@@ -15,10 +15,75 @@ ProjectsWindow::~ProjectsWindow()
 }
 
 
+void ProjectsWindow::connectionMaker(QString ip, int port)
+{
+    this_ip = ip;
+    this_port = port;
+    socket = new QTcpSocket();
+    socket->connectToHost(ip, port);
+    connect(socket, &QTcpSocket::connected, this, &ProjectsWindow::socket_connected);
+    connect(socket, &QTcpSocket::readyRead, this, &ProjectsWindow::socket_readyRead);
+    connect(socket, &QTcpSocket::bytesWritten, this, &ProjectsWindow::socket_bytesWritten);
+    connect(socket, &QTcpSocket::disconnected, this, &ProjectsWindow::socket_disconnected);
+    qDebug() << "Project win connected!";
+
+}
+
+void ProjectsWindow::socket_readyRead()
+{
+    QByteArray data = socket->readAll();
+    responseChecker(QString(data));
+}
+
+void ProjectsWindow::socket_connected()
+{
+}
+
+void ProjectsWindow::socket_bytesWritten()
+{
+}
+
+void ProjectsWindow::socket_disconnected()
+{
+}
+
+void ProjectsWindow::sendRequest(QString s)
+{
+    QByteArray data = s.toUtf8();
+    socket->write(data);
+    qDebug() << s;
+}
+
+void ProjectsWindow::responseChecker(QString s)
+{
+    qDebug() << "response get is: " << s;
+    QJsonDocument doc = QJsonDocument::fromJson(s.toUtf8());
+    QString resState = doc.object().value("res-state").toString();
+
+    if (resState =="")
+    {
+
+
+    }
+}
+
 
 void ProjectsWindow::this_org_maker(QString a)
 {
     this_org = a;
+}
+
+void ProjectsWindow::project_this_person_maker(OrgPerson a)
+{
+    this_person.perSetID(a.perGetId());
+    this_person.perSetName(a.perGetName());
+    this_person.perSetUsername(a.perGetUsername());
+    this_person.orgPerSetID(a.orgPerGetId());
+}
+
+void ProjectsWindow::project_admin_access_maker(bool a)
+{
+    admin_access = a;
 }
 
 void ProjectsWindow::this_project_maker(QString a)
@@ -27,55 +92,14 @@ void ProjectsWindow::this_project_maker(QString a)
     ui->projects_name_text->setText(a);
 }
 
-void ProjectsWindow::thisProjectShowAdmin()
+void ProjectsWindow::thisProjectShowAdmin(QString username)
 {
-    QString filePath = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org+"/ORG_PROJECTS.json";
-
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        return;
-    }
-
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-    file.close();
-
-    QJsonArray array = doc.array();
-    QString projectAdminId;
-
-    for (int i = 0; i < array.size(); i++)
-    {
-        QJsonObject obj = array.at(i).toObject();
-        if (obj.value("project_name").toString() == this_project.projGetName())
-        {
-            projectAdminId = obj.value("project_admin_id").toString();
-            break;
-        }
-    }
-
-
-    QString username;
-    QString filePath2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org+"/ORG_PROJECTS/" +this_project.projGetName() + "/PROJECT_PERSON.json";
-    QFile file2(filePath2);
-    if (!file2.open(QIODevice::ReadOnly))
-    {
-        return ;
-    }
-
-    QByteArray jsonData = file2.readAll();
-    file2.close();
-    QJsonDocument doc2 = QJsonDocument::fromJson(jsonData);
-
-    QJsonArray jsonArray = doc2.array();
-
-    for (int i = 0; i < jsonArray.size(); ++i) {
-        QJsonObject jsonObject = jsonArray.at(i).toObject();
-        if (jsonObject.value("id").toString() == projectAdminId) {
-            username= jsonObject.value("username").toString();
-        }
-    }
+  this_project_admin = username;
   ui->Project_admin_text->setText(username);
 }
+
+
+
 
 
 void ProjectsWindow::on_projects_add_person_BTN_clicked()
@@ -211,8 +235,8 @@ void ProjectsWindow::on_projects_remove_person_BTN_clicked()
         if (reply == QMessageBox::Yes)
         {
             removeProjectPerson(ui->project_persons_tree_widget->currentItem()->text(1));
-            thisProjectShowAdmin();
-            loadProjectPersons();
+            //thisProjectShowAdmin();
+            //loadProjectPersons();
         }
     }
     else
@@ -267,7 +291,7 @@ void ProjectsWindow::on_projects_set_admin_BTN_clicked()
         {
         QMessageBox::information(this, "Promoted!", "User promoted to admin!");
         changeProjectAdmin(ui->project_persons_tree_widget->currentItem()->text(1));
-        thisProjectShowAdmin();
+        //thisProjectShowAdmin();
         }
         else
             QMessageBox::warning(this, "Select a person", "select a person from the list!");
@@ -638,6 +662,15 @@ void ProjectsWindow::AddNewTaskToProject(Task new_task)
     file.resize(0);
     file.write(jsonDoc2.toJson());
     file.close();
-
 }
+
+
+
+void ProjectsWindow::closeEvent(QCloseEvent *event)
+{
+    qDebug() << "project win Disconnected!";
+    socket->close();
+    emit reconnect(this_ip,this_port);
+}
+
 
