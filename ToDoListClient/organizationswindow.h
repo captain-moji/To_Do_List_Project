@@ -103,6 +103,8 @@ private slots:
     void on_projects_list_widget_itemDoubleClicked(QListWidgetItem *item);
 
 
+    void on_tabWidget_currentChanged(int index);
+
 public slots:
     void socket_readyRead();
     void socket_connected();

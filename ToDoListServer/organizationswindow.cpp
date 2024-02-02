@@ -1072,3 +1072,10 @@ void OrganizationsWindow::on_projects_list_widget_itemDoubleClicked(QListWidgetI
     t->loadProjectTasks();
 }
 
+
+void OrganizationsWindow::on_tabWidget_currentChanged(int index)
+{
+    ui->org_persons_tree_widget->setCurrentItem(nullptr);
+    ui->teams_list_widget->setCurrentItem(nullptr);
+    ui->projects_list_widget->setCurrentItem(nullptr);
+}

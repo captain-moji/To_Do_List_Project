@@ -120,3 +120,5 @@ void FirstPage::password_checker(QString p)
         QMessageBox ::warning( this, "Error!" , "Password is NOT Correct!");
     }
 }
+
+
