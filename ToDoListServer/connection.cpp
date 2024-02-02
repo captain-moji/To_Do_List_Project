@@ -1,7 +1,6 @@
 #include "connection.h"
 #include "ui_connection.h"
-#include <signup.h>
-#include <person.h>
+
 #include <todolist.h>
 
 Connection::Connection(QWidget *parent)
@@ -177,6 +176,68 @@ void Connection::serverReqActions(QString received_message)
         QString org_name = jsonObject["orgname"].toString();
         load_org_projects(org_name);
     }
+    if (reqtype == "add-project-to-org")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        QString proj_name = jsonObject["projname"].toString();
+        add_project_to_org(proj_name,org_name);
+    }
+    if (reqtype == "edit-project-in-org")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        QString proj_old_name = jsonObject["proj_oldname"].toString();
+        QString proj_new_name = jsonObject["proj_newname"].toString();
+        edit_project_in_org(proj_old_name,proj_new_name,org_name);
+    }
+    if (reqtype == "remove-project-from-org")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        QString proj_name = jsonObject["projname"].toString();
+        remove_project_from_org(proj_name,org_name);
+    }
+    if (reqtype == "check-org-team-access")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        QString team_name = jsonObject["teamname"].toString();
+        QString username = jsonObject["username"].toString();
+        check_org_team_access(username,org_name,team_name);
+    }
+    if (reqtype == "team-persons-list")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        QString team_name = jsonObject["teamname"].toString();
+        load_team_persons(team_name,org_name);
+    }
+    if (reqtype == "check-org-project-access")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        QString proj_name = jsonObject["projectname"].toString();
+        QString username = jsonObject["username"].toString();
+        check_org_project_access(username,org_name,proj_name);
+    }
+    if (reqtype == "add-new-person-to-team")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        QString team_name = jsonObject["teamname"].toString();
+        QString username = jsonObject["username"].toString();
+        add_person_to_team(username,org_name,team_name);
+    }
+    if (reqtype == "change-person-role-in-team")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        QString team_name = jsonObject["teamname"].toString();
+        QString username = jsonObject["username"].toString();
+        change_person_role_in_team(username,org_name,team_name);
+    }
+    if (reqtype == "remove-person-from-team")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        QString team_name = jsonObject["teamname"].toString();
+        QString username = jsonObject["username"].toString();
+        remove_person_from_team(username,org_name,team_name);
+    }
+
+
 }
 
 void Connection::server_newConnection()
@@ -1018,12 +1079,344 @@ void Connection::load_org_projects(QString org_name)
 
 }
 
+void Connection::add_project_to_org(QString proj_name, QString org_name)
+{
+    bool exist = check_project_exsist_in_org(proj_name,org_name);
+    if (exist == false)
+    {
+        OrganizationsWindow *s = new OrganizationsWindow;
+        s->this_org_maker(org_name);
+        s->addProjectToOrganization(proj_name);
+
+        QJsonObject object;
+        object.insert("res-state", "project-add-to-org-ok");
+        object.insert("message", "project added to organization!");
+        QString newJson = QJsonDocument(object).toJson();
+        serverResponse(newJson);
+    }
+    else
+    {
+        QJsonObject object;
+        object.insert("res-state", "project-add-to-org-failed");
+        object.insert("message", "Project name is exsist!\nTry another name!");
+        QString newJson = QJsonDocument(object).toJson();
+        serverResponse(newJson);
+    }
+
+}
+
+bool Connection::check_project_exsist_in_org(QString proj_name, QString org)
+{
+    QString Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org + "/ORG_PROJECTS.json";
+    QFile file(Path);
+    file.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    QJsonArray jsonArray = doc.array();
+
+    for (const QJsonValue &value : jsonArray) {
+        QJsonObject obj = value.toObject();
+        if (obj["project_name"].toString() == proj_name) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Connection::edit_project_in_org(QString proj_old_name,QString proj_new_name,QString org_name)
+{
+    bool exist = check_project_exsist_in_org(proj_new_name,org_name);
+    if (exist == false)
+    {
+        OrganizationsWindow *s = new OrganizationsWindow;
+        s->this_org_maker(org_name);
+        s->editProjectinOrganization(proj_old_name,proj_new_name);
+
+        QString Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org_name + "/ORG_PROJECTS.json";
+        QFile file(Path);
+        file.open(QIODevice::ReadOnly);
+        QByteArray jsonData = file.readAll();
+        file.close();
+        QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+        QJsonArray jsonArray = doc.array();
+
+        for (int i = 0; i < jsonArray.size(); ++i) {
+            QJsonObject obj = jsonArray[i].toObject();
+            if (obj["project_name"].toString() == proj_old_name) {
+                obj["project_name"] = proj_new_name;
+                jsonArray[i] = obj;
+                break;
+            }
+        }
+
+        QJsonDocument newDoc(jsonArray);
+
+        QFile newFile(Path);
+        newFile.open(QIODevice::WriteOnly);
+        newFile.write(newDoc.toJson());
+        newFile.close();
 
 
+        QJsonObject object;
+        object.insert("res-state", "project-edit-in-org-ok");
+        object.insert("message", "Project edited!");
+        QString newJson = QJsonDocument(object).toJson();
+        serverResponse(newJson);
+    }
+    else
+    {
+        QJsonObject object;
+        object.insert("res-state", "project-add-to-org-failed");
+        object.insert("message", "Project name is exsist!\nTry another name!");
+        QString newJson = QJsonDocument(object).toJson();
+        serverResponse(newJson);
+    }
+}
+
+void Connection::remove_project_from_org(QString proj_name, QString org)
+{
+    OrganizationsWindow *s = new OrganizationsWindow;
+    s->this_org_maker(org);
+    s->removeProjectFromOrganization(proj_name);
+
+    QJsonObject object;
+    object.insert("res-state", "project-remove-from-org-ok");
+    object.insert("message", "Project Removed!");
+    QString newJson = QJsonDocument(object).toJson();
+    serverResponse(newJson);
+}
+
+void Connection::check_org_team_access(QString username,QString org_name,QString team_name)
+{
+    bool found = false;
+
+    QString teamId;
+    bool isTeamAdmin;
+    bool isOrgAdmin;
+    QString id;
+    QString orgId;
+    QString name;
+
+    QString Pathfile = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org_name + "/ORG_TEAMS/" + team_name +".json";
+    QFile file2(Pathfile);
+    file2.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file2.readAll();
+    file2.close();
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    QJsonArray jsonArray = doc.array();
+
+    for (int i = 0; i < jsonArray.size(); ++i)
+    {
+        QJsonObject obj = jsonArray[i].toObject();
+        if (obj["username"].toString() == username) {
+            found = true;
+
+            teamId = obj["team_id"].toString();
+            isTeamAdmin = obj["is_team_admin"].toBool();
+            isOrgAdmin = obj["is_org_admin"].toBool();
+            id = obj["id"].toString();
+            orgId = obj["id"].toString();
+            name = obj["name"].toString();
+            break;
+            }
+    }
+
+    if (found)
+        {
+            QJsonObject object;
+            object.insert("res-state", "access-to-org-team-ok");
+            object.insert("team-id",teamId );
+            object.insert("is-team-admin",isTeamAdmin );
+            object.insert("is-org-admin",isOrgAdmin );
+            object.insert("name",name );
+            object.insert("username",username );
+            object.insert("id",id );
+            object.insert("org-id",orgId );
+            object.insert("username",username );
+            QString newJson = QJsonDocument(object).toJson();
+            serverResponse(newJson);
+        }
+        else
+        {
+        QJsonObject object;
+        object.insert("res-state", "access-to-org-team-failed");
+        object.insert("message", "you can not see this team!\nNot a Member or admin!");
+        QString newJson = QJsonDocument(object).toJson();
+        serverResponse(newJson);
+        }
+}
+
+void Connection::load_team_persons(QString team, QString org)
+{
+    QString Pathfile = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org + "/ORG_TEAMS/" + team +".json";
+    QFile file(Pathfile);
+    file.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    QJsonObject obj;
+    obj["res-state"] = "team-persons-list-ok";
+    obj["team-persons"] = doc.array();
+    serverResponse(QString(QJsonDocument(obj).toJson()));
+}
+
+void Connection::check_org_project_access(QString user,QString org_name,QString proj_name)
+{
+    bool is_member = false;
+    bool is_team_member = false;
+
+    QString username;
+    QString name;
+    QString id;
+    QString org_id;
+
+    QString Pathfile = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org_name + "/ORG_PROJECTS/" + proj_name +"/PROJECT_PERSON.json";
+    QFile file(Pathfile);
+    file.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file.readAll();
+    file.close();
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    QJsonArray jsonArray = doc.array();
+    for (int i = 0; i < jsonArray.size(); ++i)
+    {
+        QJsonObject obj = jsonArray[i].toObject();
+        if (obj["username"].toString() == user)
+        {
+            is_member = true;
+            id= obj["id"].toString();
+            name = obj["name"].toString();
+            org_id = obj["org_id"].toString();
+            username = obj["username"].toString();
+            break;
+        }
+    }
+
+
+    QString Pathfile2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org_name + "/ORG_PROJECTS/" + proj_name +"/PROJECT_TEAMS.json";
+    QFile file2(Pathfile2);
+    file2.open(QIODevice::ReadOnly);
+    QByteArray jsonData2 = file2.readAll();
+    file2.close();
+    QJsonDocument doc2 = QJsonDocument::fromJson(jsonData2);
+    QJsonArray jsonArray2 = doc2.array();
+    for (int i = 0; i < jsonArray2.size(); ++i)
+    {
+        QJsonObject obj = jsonArray2[i].toObject();
+        QString teamname = obj["team_name"].toString();
+
+        QString Pathfile3 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org_name + "/ORG_TEAMS/" + teamname + ".json";
+        QFile file3(Pathfile3);
+        file3.open(QIODevice::ReadOnly);
+        QByteArray jsonData3 = file3.readAll();
+        QJsonDocument doc3 = QJsonDocument::fromJson(jsonData3);
+        QJsonArray jsonArray3 = doc3.array();
+        bool find = false;
+        for (int i = 0; i < jsonArray3.size(); ++i)
+        {
+            QJsonObject obj = jsonArray3[i].toObject();
+            if (obj["username"].toString() == user)
+            {
+                find = true;
+                is_team_member = true;
+
+                username = obj["username"].toString();
+                name = obj["name"].toString();
+                id = obj["id"].toString();
+                org_id = obj["org_id"].toString();
+                break;
+            }
+        }
+        if (find == true)
+        {
+            break;
+        }
+    }
+
+    if (is_member == true)
+    {
+        QJsonObject object2;
+        object2.insert("res-state", "is-project-member-ok");
+        object2.insert("id", id);
+        object2.insert("name", name);
+        object2.insert("username", username);
+        object2.insert("org_id", org_id);
+        QString newJson = QJsonDocument(object2).toJson();
+        serverResponse(newJson);
+    }
+    else
+    {
+        if(is_team_member == true)
+        {
+            QJsonObject object2;
+            object2.insert("res-state", "is-project-team-member-ok");
+            object2.insert("id", id);
+            object2.insert("name", name);
+            object2.insert("username", username);
+            object2.insert("org_id", org_id);
+            QString newJson = QJsonDocument(object2).toJson();
+            serverResponse(newJson);
+        }
+        else
+        {
+            QJsonObject object2;
+            object2.insert("res-state", "is-project-member-failed");
+            object2.insert("message", "You do NOT have access the project!");
+            QString newJson = QJsonDocument(object2).toJson();
+            serverResponse(newJson);
+        }
+    }
+}
+
+void Connection::add_person_to_team(QString username, QString org_name,QString team_name)
+{
+    TeamsWindow * t = new TeamsWindow;
+    t->this_org_maker(org_name);
+    t->this_team_maker(team_name);
+    t->addNewTeamPerson(username);
+
+    QJsonObject object2;
+    object2.insert("res-state", "add-new-person-to-team-ok");
+    object2.insert("message", "person added to team!");
+    QString newJson = QJsonDocument(object2).toJson();
+    serverResponse(newJson);
+}
+
+
+void Connection::change_person_role_in_team(QString username,QString org_name,QString team_name)
+{
+    TeamsWindow * t = new TeamsWindow;
+    t->this_org_maker(org_name);
+    t->this_team_maker(team_name);
+    t->changeTeamPersonRole(username);
+
+    QJsonObject object2;
+    object2.insert("res-state", "change-person-role-in-team-ok");
+    object2.insert("message", "person role changed!");
+    QString newJson = QJsonDocument(object2).toJson();
+    serverResponse(newJson);
+}
+
+void Connection::remove_person_from_team(QString username,QString org_name,QString team_name)
+{
+    TeamsWindow * t = new TeamsWindow;
+    t->this_org_maker(org_name);
+    t->this_team_maker(team_name);
+    t->removeTeamPerson(username);
+
+    QJsonObject object2;
+    object2.insert("res-state", "remove-person-from-team-ok");
+    object2.insert("message", "person removed from team!");
+    QString newJson = QJsonDocument(object2).toJson();
+    serverResponse(newJson);
+}
 
 
 void Connection::on_pushButton_clicked()
 {
     serverResponse("HELLO");
 }
+
+
+
 

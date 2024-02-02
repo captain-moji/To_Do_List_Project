@@ -1,6 +1,7 @@
 #include "teamswindow.h"
 #include "ui_teamswindow.h"
 #include <QTimer>
+#include <QJsonValue>
 
 TeamsWindow::TeamsWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -103,12 +104,30 @@ void TeamsWindow::loadTeamPersons()
 void TeamsWindow::addNewTeamPerson(QString new_username)
 {
     QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + this_org + "/ORG_PERSONS.json";
-    QFile file(file_Path);
-    if (!file.open(QIODevice::ReadOnly))
+    bool exsist = false;
+
+    QFile filex(file_Path);
+    filex.open(QIODevice::ReadOnly);
+    QByteArray jsonDatax = filex.readAll();
+    filex.close();
+    QJsonDocument doc = QJsonDocument::fromJson(jsonDatax);
+    QJsonArray jsonArrayx = doc.array();
+    for (const auto& item : jsonArrayx) {
+        QJsonObject obj = item.toObject();
+        if (obj["username"].toString() == new_username)
+        {
+            exsist = true;
+            break;
+        }
+    }
+
+    if(exsist == false)
     {
         return;
     }
 
+    QFile file(file_Path);
+    file.open(QIODevice::ReadOnly);
     QByteArray jsonData = file.readAll();
     QJsonDocument jsonDoc(QJsonDocument::fromJson(jsonData));
     QJsonArray jsonArray = jsonDoc.array();

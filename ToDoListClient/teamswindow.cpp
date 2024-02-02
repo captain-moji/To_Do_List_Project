@@ -16,228 +16,204 @@ TeamsWindow::~TeamsWindow()
 }
 
 
+void TeamsWindow::connectionMaker(QString ip, int port)
+{
+    this_ip = ip;
+    this_port = port;
+    socket = new QTcpSocket();
+    socket->connectToHost(ip, port);
+    connect(socket, &QTcpSocket::connected, this, &TeamsWindow::socket_connected);
+    connect(socket, &QTcpSocket::readyRead, this, &TeamsWindow::socket_readyRead);
+    connect(socket, &QTcpSocket::bytesWritten, this, &TeamsWindow::socket_bytesWritten);
+    connect(socket, &QTcpSocket::disconnected, this, &TeamsWindow::socket_disconnected);
+    qDebug() << "Team win connected!";
+
+}
+
+void TeamsWindow::socket_readyRead()
+{
+    QByteArray data = socket->readAll();
+    responseChecker(QString(data));
+}
+
+void TeamsWindow::socket_connected()
+{
+}
+
+void TeamsWindow::socket_bytesWritten()
+{
+}
+
+void TeamsWindow::socket_disconnected()
+{
+}
+
+void TeamsWindow::sendRequest(QString s)
+{
+    QByteArray data = s.toUtf8();
+    socket->write(data);
+    qDebug() << s;
+}
+
+void TeamsWindow::responseChecker(QString s)
+{
+    qDebug() << "response get is: " << s;
+    QJsonDocument doc = QJsonDocument::fromJson(s.toUtf8());
+    QString resState = doc.object().value("res-state").toString();
+
+    if (resState =="team-persons-list-ok")
+    {
+        show_team_persons(s);
+    }
+    if (resState =="add-new-person-to-team-ok")
+    {
+    QString mess = doc.object().value("message").toString();
+    QMessageBox::information(this, "Added", mess);
+    loadTeamPersons();
+    }
+    if (resState =="change-person-role-in-team-ok")
+    {
+        QString mess = doc.object().value("message").toString();
+        QMessageBox::information(this, "changed", mess);
+        loadTeamPersons();
+    }
+    if (resState =="remove-person-from-team-ok")
+    {
+        QString mess = doc.object().value("message").toString();
+        QMessageBox::information(this, "changed", mess);
+        loadTeamPersons();
+    }
+
+
+}
+
+
 void TeamsWindow::this_team_maker(QString a)
 {
     this_team.teamSetName(a);
     ui->teams_team_name_text->setText(a);
 }
 
-
 void TeamsWindow::this_org_maker(QString a)
 {
     this_org = a;
 }
 
+void TeamsWindow::admin_access(bool a , bool b)
+{
+    is_admin = a;
+    is_org_admin = b;
+}
 
 void TeamsWindow::this_team_id_maker(QString a)
 {
     this_team.teamSetId(a);
 }
 
-
-void TeamsWindow::on_teams_add_person_BTN_clicked()
+void TeamsWindow::this_user_maker(QString username)
 {
-    OrganizationPersonsWindow *o = new OrganizationPersonsWindow(this);
-    connect (o,SIGNAL(org_person_selected(QString)),this,SLOT(add_team_person(QString)));
-    o->ORG = this_org;
-    o->setWindowTitle("Add New Person");
-    o->show();
-    o->loadOrgPersons();
+    this_user = username;
 }
-
-
-void TeamsWindow::add_team_person(QString new_username)
-{
-    addNewTeamPerson(new_username);
-    loadTeamPersons();
-}
-
 
 void TeamsWindow::loadTeamPersons()
 {
+    QJsonObject jsonObject;
+    jsonObject["req-type"] = "team-persons-list";
+    jsonObject["teamname"] = this_team.teamGetName();
+    jsonObject["orgname"] = this_org;
+    QJsonDocument jsonDocument(jsonObject);
+    QString req = jsonDocument.toJson(QJsonDocument::Compact);
+    sendRequest(req);
+}
+
+void TeamsWindow::show_team_persons(QString s)
+{
     ui->team_persons_tree_widget->clear();
-    QString filePath = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org+"/ORG_TEAMS/" +this_team.teamGetName()+ ".json";
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        return;
-    }
-    QByteArray jsonData = file.readAll();
-    file.close();
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(s.toUtf8());
+    QJsonObject jsonObj = jsonDoc.object();
+    QJsonArray teamPersons = jsonObj["team-persons"].toArray();
 
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
-    QJsonArray jsonArray = jsonDoc.array();
-
-    for (const QJsonValue& jsonValue : jsonArray) {
-        if (!jsonValue.isObject()) {
-            qDebug() << "Invalid json object";
-            continue;
-        }
-        QJsonObject jsonObject = jsonValue.toObject();
-
-        QString name = jsonObject.value("name").toString();
-        QString username = jsonObject.value("username").toString();
-        QString orgId = jsonObject.value("org_id").toString();
-        bool isTeamAdmin = jsonObject.value("is_team_admin").toBool();
-
-        bool isUsernameUnique = true;
-        for (int i = 0; i < ui->team_persons_tree_widget->topLevelItemCount(); ++i) {
-            QTreeWidgetItem* item = ui->team_persons_tree_widget->topLevelItem(i);
-            if (item->text(1) == username) {
-                isUsernameUnique = false;
-                break;
-            }
-        }
-
-        if (isUsernameUnique) {
-            QTreeWidgetItem* item = new QTreeWidgetItem(ui->team_persons_tree_widget);
-            item->setText(0, name);
-            item->setText(1, username);
-            item->setText(2, orgId);
-            item->setText(3, isTeamAdmin ? "YES" : "NO");
-        }
+    for (const QJsonValue &personValue : teamPersons) {
+        QJsonObject person = personValue.toObject();
+        QStringList personData;
+        personData << person["name"].toString() << person["username"].toString() << person["org_id"].toString();
+        QString isTeamAdmin = person["is_team_admin"].toBool() ? "Yes" : "No";
+        personData << isTeamAdmin;
+        QTreeWidgetItem *item = new QTreeWidgetItem(ui->team_persons_tree_widget, personData);
+        ui->team_persons_tree_widget->addTopLevelItem(item);
     }
 }
 
 
-void TeamsWindow::addNewTeamPerson(QString new_username)
+void TeamsWindow::on_teams_add_person_BTN_clicked()
 {
-    QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + this_org + "/ORG_PERSONS.json";
-    QFile file(file_Path);
-    if (!file.open(QIODevice::ReadOnly))
+    if(is_admin == true)
     {
-        return;
+        OrgDialog * s = new OrgDialog(this);
+        s->set_text("Enter Username of the Person: ");
+        connect(s,SIGNAL(name_readed(QString)),this,SLOT(add_team_person(QString)));
+        s->show();
     }
-
-    QByteArray jsonData = file.readAll();
-    QJsonDocument jsonDoc(QJsonDocument::fromJson(jsonData));
-    QJsonArray jsonArray = jsonDoc.array();
-
-    for (const QJsonValue& jsonValue : jsonArray)
+    else
     {
-        QJsonObject jsonObject = jsonValue.toObject();
-        if (jsonObject.value("username").toString() == new_username)
-        {
-            temp_team_person.perSetName(jsonObject.value("name").toString());
-            temp_team_person.perSetUsername(jsonObject.value("username").toString());
-            temp_team_person.perSetID(jsonObject.value("id").toString());
-            temp_team_person.orgPerSetID(jsonObject.value("org_id").toString());
-            temp_team_person.orgPerSetIsAdmin(jsonObject.value("is_admin").toBool());
-            temp_team_person.teamPerSetID(this_team.teamGetid());
-            temp_team_person.teamPerSetIsAdmin(false);
-        }
+        QMessageBox::warning(this, "Not found", "You are NOT Team or Organization Admin!");
     }
-
-
-    QString file_Path2 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org+"/ORG_TEAMS/" +this_team.teamGetName()+ ".json";
-
-    QFile file2(file_Path2);
-    file2.open(QIODevice::ReadWrite);
-
-    QByteArray jsonData2 = file2.readAll();
-
-    QJsonDocument jsonDoc2 = QJsonDocument::fromJson(jsonData2);
-
-    QJsonArray jsonArray2 = jsonDoc2.array();
-
-    for (int i = 0; i < jsonArray2.size(); ++i)
-    {
-        QJsonObject jsonObject = jsonArray2.at(i).toObject();
-        if (jsonObject.value("username").toString() == new_username)
-        {
-            QMessageBox ::warning(this, "Error!" , "This user already added to this team!");
-            file.close();
-            return;
-        }
-    }
-
-    QJsonObject newJsonObject;
-    newJsonObject["id"] = temp_team_person.perGetId();
-    newJsonObject["org_id"] = temp_team_person.orgPerGetId();
-    newJsonObject["name"] = temp_team_person.perGetName();
-    newJsonObject["username"] = temp_team_person.perGetUsername();
-    newJsonObject["is_org_admin"] = temp_team_person.orgPerGetIsAdmin();
-    newJsonObject["team_id"] = temp_team_person.teamPerGetId();
-    newJsonObject["is_team_admin"] = temp_team_person.teamPerGetIsAdmin();
-
-    jsonArray2.append(newJsonObject);
-
-    jsonDoc.setArray(jsonArray2);
-    file2.resize(0);
-    file2.write(jsonDoc.toJson());
-    file2.close();
 }
 
-
-void TeamsWindow::removeTeamPerson(QString username)
+void TeamsWindow::add_team_person(QString new_username)
 {
-    QString filePath = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org+"/ORG_TEAMS/" +this_team.teamGetName()+ ".json";
-
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly)) {
-        return;
-    }
-
-    QByteArray jsonData = file.readAll();
-    file.close();
-
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
-
-    QJsonArray jsonArray = jsonDoc.array();
-
-    for (int i = 0; i < jsonArray.size(); ++i) {
-        QJsonValue jsonValue = jsonArray.at(i);
-        QJsonObject jsonObject = jsonValue.toObject();
-
-        if (jsonObject.value("username").toString() == username) {
-            jsonArray.removeAt(i);
-            break;
-        }
-    }
-    jsonDoc.setArray(jsonArray);
-    if (!file.open(QIODevice::WriteOnly)) {
-        return;
-    }
-    file.write(jsonDoc.toJson());
-    file.close();
+    QJsonObject jsonObject;
+    jsonObject["req-type"] = "add-new-person-to-team";
+    jsonObject["teamname"] = this_team.teamGetName();
+    jsonObject["orgname"] = this_org;
+    jsonObject["username"] = new_username;
+    QJsonDocument jsonDocument(jsonObject);
+    QString req = jsonDocument.toJson(QJsonDocument::Compact);
+    sendRequest(req);
 }
 
-
-void TeamsWindow::changeTeamPersonRole(QString username)
+void TeamsWindow::addNewTeamPerson(QString s)
 {
-    QString filePath = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/"+this_org+"/ORG_TEAMS/" +this_team.teamGetName()+ ".json";
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadWrite | QIODevice::Text))
-    {
-        return;
-    }
 
-    QByteArray data = file.readAll();
-    QJsonDocument doc = QJsonDocument::fromJson(data);
-    QJsonArray jsonArray = doc.array();
 
-    for (int i = 0; i < jsonArray.size(); i++)
+}
+
+void TeamsWindow::on_teams_change_role_BTN_clicked()
+{
+    if(is_admin == true)
     {
-        QJsonObject obj = jsonArray[i].toObject();
-        if (obj["username"].toString() == username)
+        QTreeWidgetItem *selectedItem = ui->team_persons_tree_widget->currentItem();
+        if (selectedItem)
         {
-            if(obj["is_team_admin"] == false)
+            if(selectedItem->text(1) == this_user && is_org_admin == false)
             {
-                obj["is_team_admin"] = true;
+                QMessageBox::warning(this, "Self role", "You can NOT demote yourself!");
             }
             else
             {
-                obj["is_team_admin"] = false;
+                changeTeamPersonRole(ui->team_persons_tree_widget->currentItem()->text(1));
             }
-            jsonArray[i] = obj;
-            break;
         }
+        else
+            QMessageBox::warning(this, "Select a person", "select a person from the list!");
+        ui->team_persons_tree_widget->clearSelection();
     }
+    else
+    {
+        QMessageBox::warning(this, "Not found", "You are NOT Team or Organization Admin!");
+    }
+}
 
-    doc.setArray(jsonArray);
-    file.resize(0);
-    file.write(doc.toJson());
-    file.close();
+void TeamsWindow::changeTeamPersonRole(QString username)
+{
+    QJsonObject jsonObject;
+    jsonObject["req-type"] = "change-person-role-in-team";
+    jsonObject["teamname"] = this_team.teamGetName();
+    jsonObject["orgname"] = this_org;
+    jsonObject["username"] = username;
+    QJsonDocument jsonDocument(jsonObject);
+    QString req = jsonDocument.toJson(QJsonDocument::Compact);
+    sendRequest(req);
 }
 
 void TeamsWindow::changeOrgPersonRole(QString username)
@@ -277,46 +253,48 @@ void TeamsWindow::changeOrgPersonRole(QString username)
     file.close();
 }
 
-
 void TeamsWindow::on_teams_remove_person_BTN_clicked()
 {
-    if (ui->team_persons_tree_widget->currentItem()!=nullptr)
+    if(is_admin == true)
     {
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this, "Delete a person", "Are you sure?\nDeleteing is not returnable!", QMessageBox::Yes | QMessageBox::No);
-        if (reply == QMessageBox::Yes)
+        QTreeWidgetItem *selectedItem = ui->team_persons_tree_widget->currentItem();
+        if (selectedItem)
         {
-            removeTeamPerson(ui->team_persons_tree_widget->currentItem()->text(1));
-            loadTeamPersons();
+            if(selectedItem->text(1) == this_user && is_org_admin == false)
+            {
+                QMessageBox::warning(this, "Self Remove", "You can NOT remove yourself!");
+            }
+            else
+            {
+                QMessageBox::StandardButton reply;
+                reply = QMessageBox::question(this, "Delete a person", "Are you sure?\nDeleteing is not returnable!", QMessageBox::Yes | QMessageBox::No);
+                if (reply == QMessageBox::Yes)
+                {
+                    removeTeamPerson(ui->team_persons_tree_widget->currentItem()->text(1));
+                }
+            }
         }
-    }
-    else
-    {
-        QMessageBox::warning(this, "Select a person", "select a person from the list!");
-    }
-    ui->team_persons_tree_widget->clearSelection();
-}
-
-
-void TeamsWindow::on_teams_change_role_BTN_clicked()
-{
-    QTreeWidgetItem *selectedItem = ui->team_persons_tree_widget->currentItem();
-    if (selectedItem)
-    {
-        if(ui->team_persons_tree_widget->currentItem()->text(3)=="YES")
-            QMessageBox::information(this, "demoted!", "User demoted to member!");
         else
-            QMessageBox::information(this, "Promoted!", "User promoted to admin!");
-        changeTeamPersonRole(ui->team_persons_tree_widget->currentItem()->text(1));
-        loadTeamPersons();
+            QMessageBox::warning(this, "Select a person", "select a person from the list!");
+        ui->team_persons_tree_widget->clearSelection();
     }
     else
-        QMessageBox::warning(this, "Select a person", "select a person from the list!");
-    ui->team_persons_tree_widget->clearSelection();
+    {
+        QMessageBox::warning(this, "Not found", "You are NOT Team or Organization Admin!");
+    }
 }
 
-
-
+void TeamsWindow::removeTeamPerson(QString user)
+{
+    QJsonObject jsonObject;
+    jsonObject["req-type"] = "remove-person-from-team";
+    jsonObject["teamname"] = this_team.teamGetName();
+    jsonObject["orgname"] = this_org;
+    jsonObject["username"] = user;
+    QJsonDocument jsonDocument(jsonObject);
+    QString req = jsonDocument.toJson(QJsonDocument::Compact);
+    sendRequest(req);
+}
 
 void TeamsWindow::search_user()
 {
@@ -403,5 +381,13 @@ void TeamsWindow::on_Admins_checkbox_stateChanged(int arg1)
         }
     }
     search_user();
+}
+
+
+void TeamsWindow::closeEvent(QCloseEvent *event)
+{
+    qDebug() << "team win Disconnected!";
+    socket->close();
+    emit reconnect(this_ip,this_port);
 }
 

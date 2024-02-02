@@ -25,6 +25,7 @@ void OrganizationsWindow::connectionMaker(QString ip, int port) // (QTcpSocket *
     connect(socket, &QTcpSocket::readyRead, this, &OrganizationsWindow::socket_readyRead);
     connect(socket, &QTcpSocket::bytesWritten, this, &OrganizationsWindow::socket_bytesWritten);
     connect(socket, &QTcpSocket::disconnected, this, &OrganizationsWindow::socket_disconnected);
+    qDebug() << "org win connected!";
 }
 
 void OrganizationsWindow::socket_readyRead()
@@ -145,14 +146,50 @@ void OrganizationsWindow::responseChecker(QString s)
         QMessageBox::information(this, "Project Removed", mess);
         loadAllOrgProjects();
     }
+    if (resState == "access-to-org-team-failed")
+    {
+        QString mess = doc.object().value("message").toString();
+        QMessageBox::warning(this, "access failed", mess);
+    }
+    if (resState == "access-to-org-team-ok")
+    {
+        QString name = doc.object().value("name").toString();
+        QString team_id = doc.object().value("team-id").toString();
+        QString username = doc.object().value("username").toString();
+        QString id = doc.object().value("id").toString();
+        QString org_id = doc.object().value("org-id").toString();
+        bool is_org_admin = doc.object().value("is-org-admin").toBool();
+        bool is_team_admin = doc.object().value("is-team-admin").toBool();
+        org_team_show(username, name,id,org_id, team_id, is_team_admin,is_org_admin);
+    }
 
+    if (resState == "is-project-member-ok")
+    {
+        QString name = doc.object().value("name").toString();
+        QString username = doc.object().value("username").toString();
+        QString id = doc.object().value("id").toString();
+        QString org_id = doc.object().value("org-id").toString();
+        show_org_project_to_member (username, name, id, org_id,true,false);
+    }
+    if (resState == "is-project-team-member-ok")
+    {
+        QString name = doc.object().value("name").toString();
+        QString username = doc.object().value("username").toString();
+        QString id = doc.object().value("id").toString();
+        QString org_id = doc.object().value("org-id").toString();
+        show_org_project_to_member (username,name,id, org_id, false , true);
+    }
+    if (resState == "is-project-member-failed")
+    {
+        QString message = doc.object().value("message").toString();
+        QMessageBox::warning(this, "access failed", message);
+    }
 
 
 }
 
 
-
-void OrganizationsWindow::this_org_maker(QString a)
+void OrganizationsWindow:: this_org_maker(QString a)
 {
     this_org.orgSetName(a);
     ui->org_name_lable->setText(this_org.orgGetName());
@@ -614,22 +651,6 @@ QString OrganizationsWindow::getTeamIdByName(QString name)
     return "";
 }
 
-void OrganizationsWindow::on_teams_list_widget_itemDoubleClicked(QListWidgetItem *item)
-{
-    TeamsWindow * t = new TeamsWindow (this);
-    connect (this,SIGNAL(team_name_signal(QString)),t,SLOT(this_team_maker(QString)));
-    connect (this,SIGNAL(org_name_signal(QString)),t,SLOT(this_org_maker(QString)));
-    connect (this,SIGNAL(team_id_signal(QString)),t,SLOT(this_team_id_maker(QString)));
-    emit team_name_signal(item->text());
-    emit org_name_signal(this_org.orgGetName());
-    emit team_id_signal(getTeamIdByName(item->text()));
-    t->setWindowTitle("Team Management");
-    t->show();
-    t->loadTeamPersons();
-}
-
-
-
 
 void OrganizationsWindow::loadAllOrgProjects()
 {
@@ -785,18 +806,15 @@ void OrganizationsWindow::removeProjectFromOrganization(QString project_name)
 
 void OrganizationsWindow::search_org_project()
 {
-    /*
     QString s = ui->search_projects_line_edit->text();
-    for (int i = 0; i < ui->projects_list_widget->count(); ++i)
-    {
-        QListWidgetItem *item = ui->projects_list_widget->item(i);
-        if (item->text().startsWith(s)) {
+    for (int i = 0; i < ui->projects_tree_widget->topLevelItemCount(); ++i) {
+        QTreeWidgetItem *item = ui->projects_tree_widget->topLevelItem(i);
+        if (item->text(0).startsWith(s)) {
             item->setHidden(false);
         } else {
             item->setHidden(true);
         }
     }
-    */
 }
 
 void OrganizationsWindow::closeEvent(QCloseEvent *event)
@@ -817,27 +835,6 @@ void OrganizationsWindow::on_search_projects_line_edit_textChanged(const QString
 }
 
 
-void OrganizationsWindow::on_sort_projects_BTN__clicked()
-{
-    //ui->projects_list_widget->sortItems();
-}
-
-
-void OrganizationsWindow::on_projects_list_widget_itemDoubleClicked(QListWidgetItem *item)
-{
-    ProjectsWindow * t = new ProjectsWindow (this);
-    connect (this,SIGNAL(project_name_signal(QString)),t,SLOT(this_project_maker(QString)));
-    connect (this,SIGNAL(org_name_signal(QString)),t,SLOT(this_org_maker(QString)));
-    emit project_name_signal(item->text());
-    emit org_name_signal(this_org.orgGetName());
-    t->setWindowTitle("Project Management");
-    t->show();
-    t->loadProjectTeams();
-    t->loadOrgTeamsComboBox();
-    t->thisProjectShowAdmin();
-    t->loadProjectPersons();
-}
-
 void OrganizationsWindow::on_tabWidget_currentChanged(int index)
 {
     ui->projects_tree_widget->setCurrentItem(nullptr);
@@ -845,3 +842,148 @@ void OrganizationsWindow::on_tabWidget_currentChanged(int index)
     ui->org_persons_tree_widget->setCurrentItem(nullptr);
 }
 
+
+void OrganizationsWindow::on_teams_tree_widget_itemDoubleClicked(QTreeWidgetItem *item, int column)
+{
+    if (this_user.orgPerGetIsAdmin() == true)
+    {
+        org_team_show_to_org_admin();
+    }
+    else
+    {
+        QJsonObject jsonObject;
+        jsonObject["req-type"] = "check-org-team-access";
+        jsonObject["teamname"] = item->text(0);
+        jsonObject["orgname"] = this_org.orgGetName();
+        jsonObject["username"] = this_user.perGetUsername();
+        QJsonDocument jsonDocument(jsonObject);
+        QString req = jsonDocument.toJson(QJsonDocument::Compact);
+        sendRequest(req);
+    }
+}
+
+
+void OrganizationsWindow::org_team_show(QString user, QString name, QString id, QString org_id, QString team_id , bool team_admin , bool org_admin)
+{
+    TeamsWindow * t = new TeamsWindow (this);
+    t->this_org_maker(this_org.orgGetName());
+    t->this_team_maker(ui->teams_tree_widget->currentItem()->text(0));
+    t->this_team_id_maker(ui->teams_tree_widget->currentItem()->text(1));
+    t->admin_access(team_admin,false);
+    t->setWindowTitle("Team Management");
+    t->this_user_maker(this_user.perGetUsername());
+    t->show();
+    socket->disconnect();
+    qDebug() << "org win Disconnected!";
+    t->connectionMaker(this_ip,this_port);
+    connect(t,SIGNAL(reconnect(QString,int)),this,SLOT(connectionMaker(QString,int)));
+    t->loadTeamPersons();
+}
+
+void OrganizationsWindow::org_team_show_to_org_admin()
+{
+    TeamsWindow * t = new TeamsWindow (this);
+    t->this_org_maker(this_org.orgGetName());
+    t->this_team_maker(ui->teams_tree_widget->currentItem()->text(0));
+    t->this_team_id_maker(ui->teams_tree_widget->currentItem()->text(1));
+    t->admin_access(true,true);
+    t->setWindowTitle("Team Management");
+    t->this_user_maker(this_user.perGetUsername());
+    t->show();
+    socket->disconnect();
+    qDebug() << "org win Disconnected!";
+    t->connectionMaker(this_ip,this_port);
+    connect(t,SIGNAL(reconnect(QString,int)),this,SLOT(connectionMaker(QString,int)));
+    t->loadTeamPersons();
+}
+
+
+void OrganizationsWindow::on_projects_tree_widget_itemDoubleClicked(QTreeWidgetItem *item, int column)
+{
+    if (this_user.orgPerGetIsAdmin() == true)
+    {
+        show_org_project_to_admin(item->text(0));
+    }
+    else if(this_user.perGetUsername() == item->text(1))
+    {
+        show_org_project_to_project_admin (item->text(0));
+    }
+    else
+    {
+        QJsonObject jsonObject;
+        jsonObject["req-type"] = "check-org-project-access";
+        jsonObject["projectname"] = item->text(0);
+        jsonObject["orgname"] = this_org.orgGetName();
+        jsonObject["username"] = this_user.perGetUsername();
+        QJsonDocument jsonDocument(jsonObject);
+        QString req = jsonDocument.toJson(QJsonDocument::Compact);
+        sendRequest(req);
+    }
+}
+
+
+void OrganizationsWindow:: show_org_project_to_project_admin (QString proj_name)
+{
+    qDebug() << "State = project admin";
+    ProjectsWindow * t = new ProjectsWindow (this);
+    t->setWindowTitle("Project Management");
+    t->this_org_maker(this_org.orgGetName());
+    t->this_project_maker(proj_name);
+    t->thisProjectShowAdmin(ui->projects_tree_widget->currentItem()->text(1));
+    t->project_this_person_maker(this_user);
+    t->project_admin_access_maker(true);
+    t->show();
+
+    socket->disconnect();
+    qDebug() << "org win Disconnected!";
+    t->connectionMaker(this_ip,this_port);
+    connect(t,SIGNAL(reconnect(QString,int)),this,SLOT(connectionMaker(QString,int)));
+
+}
+
+
+void OrganizationsWindow:: show_org_project_to_admin (QString proj_name)
+{
+    qDebug() << "State = org admin";
+    ProjectsWindow * t = new ProjectsWindow (this);
+    t->setWindowTitle("Project Management");
+    t->this_org_maker(this_org.orgGetName());
+    t->this_project_maker(proj_name);
+    t->thisProjectShowAdmin(ui->projects_tree_widget->currentItem()->text(0));
+    t->project_this_person_maker(this_user);
+    t->project_admin_access_maker(true);
+    t->show();
+
+    socket->disconnect();
+    qDebug() << "org win Disconnected!";
+    t->connectionMaker(this_ip,this_port);
+    connect(t,SIGNAL(reconnect(QString,int)),this,SLOT(connectionMaker(QString,int)));
+
+}
+
+
+void OrganizationsWindow:: show_org_project_to_member (QString username , QString name, QString id, QString org_id, bool is_member , bool is_team_member)
+{
+    if (is_member == true)
+    {
+        qDebug() << "State = project member";
+    }
+    else
+    {
+    qDebug() << "State = project Team member";
+    }
+
+    ProjectsWindow * t = new ProjectsWindow (this);
+    t->setWindowTitle("Project Management");
+    t->this_org_maker(this_org.orgGetName());
+    t->this_project_maker(ui->projects_tree_widget->currentItem()->text(0));
+    t->thisProjectShowAdmin(ui->projects_tree_widget->currentItem()->text(1));
+    t->project_this_person_maker(this_user);
+    t->project_admin_access_maker(false);
+    t->show();
+
+    socket->disconnect();
+    qDebug() << "org win Disconnected!";
+    t->connectionMaker(this_ip,this_port);
+    connect(t,SIGNAL(reconnect(QString,int)),this,SLOT(connectionMaker(QString,int)));
+}

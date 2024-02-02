@@ -155,7 +155,7 @@
           <enum>QTabWidget::Triangular</enum>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <property name="elideMode">
           <enum>Qt::ElideNone</enum>
@@ -380,6 +380,9 @@
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
             <widget class="QTreeWidget" name="projects_tree_widget">
+             <property name="sortingEnabled">
+              <bool>true</bool>
+             </property>
              <column>
               <property name="text">
                <string>Project Name</string>
@@ -422,13 +425,6 @@
            <item>
             <widget class="QWidget" name="widget_5" native="true">
              <layout class="QHBoxLayout" name="horizontalLayout_7">
-              <item>
-               <widget class="QPushButton" name="sort_projects_BTN_">
-                <property name="text">
-                 <string>Sort projects</string>
-                </property>
-               </widget>
-              </item>
               <item>
                <widget class="QLineEdit" name="search_projects_line_edit">
                 <property name="placeholderText">
