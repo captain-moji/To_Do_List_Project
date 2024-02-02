@@ -84,7 +84,7 @@ private slots:
 
     void on_search_teams_line_edit_textChanged(const QString &arg1);
 
-    void on_sort_teams_BTN_clicked();
+    void show_org_projects(QString s);
 
     void on_add_project_BTN_clicked();
 
@@ -116,6 +116,7 @@ public slots:
     void this_user_check_admin(bool res);
     void this_org_maker(QString);
     void load_org_persons(QString s);
+    void show_org_teams(QString s);
 
 private:
     QTcpSocket * socket;
