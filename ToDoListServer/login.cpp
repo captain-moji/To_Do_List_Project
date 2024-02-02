@@ -6,6 +6,7 @@ Login::Login(QWidget *parent)
     , ui(new Ui::Login)
 {
     ui->setupUi(this);
+    ui->login_forget_password_BTN->hide();
 }
 
 Login::~Login()

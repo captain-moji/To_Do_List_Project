@@ -13,18 +13,16 @@ ToDoList::~ToDoList()
     delete ui;
 }
 
-void ToDoList::connectionMaker(QTcpSocket * s) //QString ip, int port
+void ToDoList::connectionMaker(QString ip , int port)
 {
-    connection = s;
-    qDebug () << " we are here! ";
-    qDebug () << connection->isReadable();
-    qDebug () << connection->isWritable();
-    qDebug () << connection->peerAddress();
+    this_port = port;
+    this_ip = ip;
+    connection = new QTcpSocket();
+    connection->connectToHost(ip, port);
     connect(connection, &QTcpSocket::connected, this, &ToDoList::socket_connected);
     connect(connection, &QTcpSocket::readyRead, this, &ToDoList::socket_readyRead);
     connect(connection, &QTcpSocket::bytesWritten, this, &ToDoList::socket_bytesWritten);
     connect(connection, &QTcpSocket::disconnected, this, &ToDoList::socket_disconnected);
-    qDebug() << "socket created" ;
 }
 
 void ToDoList::thisUserMaker(QString username, QString id, QString name)
@@ -64,17 +62,57 @@ void ToDoList::sendRequest(QString s)
 
 void ToDoList::responseChecker(QString s)
 {
-    QJsonDocument jsonDocument2 = QJsonDocument::fromJson(s.toUtf8());
-    QJsonObject jsonObject2 = jsonDocument2.object();
-    QString reqState = jsonObject2["res-state"].toString();
-
-    if (reqState == "user-org-list-ok")
+    QJsonDocument doc = QJsonDocument::fromJson(s.toUtf8());
+    QString resState = doc.object().value("res-state").toString();
+    if (resState == "orgs-list")
     {
-
-
+        showUserOrgs(s);
     }
+    if (resState == "make-org-failed")
+    {
+        QMessageBox ::warning( this, "Error" ,"This name is exsist!\nTry another name!");
+    }
+    if (resState == "make-org-ok")
+    {
+        this_user_org_id = doc.object().value("org-id").toString();
+        QMessageBox ::information(this, "OK" ,"Organization created!\nYou Are the admin!");
+        loadOrganizations();
+    }
+    if (resState == "remove-org-failed")
+    {
+        QString message = doc.object().value("message").toString();
+        QMessageBox ::warning(this, "Error" ,message);
+    }
+    if (resState == "remove-org-ok")
+    {
+        QMessageBox ::information(this, "OK" ,"The organization Deleted!");
+        QListWidgetItem *item = ui->todolist_organizations_list->currentItem();
+        if (item!=nullptr) {
+            delete item;
+        }
+        item=nullptr;
+        loadOrganizations();
+    }
+    if (resState =="edit-org-failed")
+    {
+        QMessageBox ::warning(this, "Errot" ,"You Do NOT have permission!");
+    }
+    if (resState == "edit-org-ok")
+    {
+        QMessageBox ::information(this, "OK" ,"The organization Edited!");
+        loadOrganizations();
+    }
+}
 
 
+void ToDoList::showUserOrgs(QString list)
+{
+    qDebug () << "list is:" << list;
+    QJsonDocument doc = QJsonDocument::fromJson(list.toUtf8());
+        QJsonArray array = doc.object().value("orgs").toArray();
+        for (int i = 0; i < array.size(); i++) {
+            ui->todolist_organizations_list->addItem(array.at(i).toString());
+        }
 }
 
 void ToDoList::on_add_organization_BTN_clicked()
@@ -86,10 +124,17 @@ void ToDoList::on_add_organization_BTN_clicked()
     temp_org_dialog->show();
 }
 
-void ToDoList::add_organization(QString item)
+void ToDoList::add_organization(QString orgname)
 {
-
-
+    QJsonObject jsonObject;
+    jsonObject["req-type"] = "add-new-org";
+    jsonObject["username"] = this_user.perGetUsername();
+    jsonObject["orgname"] = orgname;
+    jsonObject["id"] = this_user.perGetId();
+    jsonObject["name"] = this_user.perGetName();
+    QJsonDocument jsonDocument(jsonObject);
+    QString req = jsonDocument.toJson(QJsonDocument::Compact);
+    sendRequest(req);
 }
 
 void ToDoList::on_edit_organization_BTN_clicked()
@@ -107,35 +152,31 @@ void ToDoList::on_edit_organization_BTN_clicked()
 
 void ToDoList::edit_organization(QString a)
 {
-    QString old_name ;
-    QListWidgetItem *item = ui->todolist_organizations_list->currentItem();
-    if (item != nullptr)
-    {
-        old_name= item->text();
-        item->setText(a);
-    }
-
-    QString path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + old_name;
-    QString newpath = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + a;
-
-    QDir sDir(path);
-    if(sDir.exists())
-    {
-        sDir.rename(path,newpath);
-    }
-    saveOrganizations();
+    QJsonObject jsonObject;
+    jsonObject["req-type"] = "edit-org";
+    jsonObject["username"] = this_user.perGetUsername();
+    jsonObject["old_orgname"] = ui->todolist_organizations_list->currentItem()->text();
+    jsonObject["new_orgname"] = a;
+    QJsonDocument jsonDocument(jsonObject);
+    QString req = jsonDocument.toJson(QJsonDocument::Compact);
+    sendRequest(req);
 }
 
 void ToDoList::on_remove_organization_BTN_clicked()
 {
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Delete a Organization", "Are you sure?\nDeleteing is not returnable!", QMessageBox::Yes | QMessageBox::No);
+    if (reply == QMessageBox::Yes)
+    {
     QListWidgetItem *item = ui->todolist_organizations_list->currentItem();
-    QString filename;
-    if (item!=nullptr) {
-        filename = item->text();
-        delete item;
+    QJsonObject jsonObject;
+    jsonObject["req-type"] = "remove-org";
+    jsonObject["username"] = this_user.perGetUsername();
+    jsonObject["orgname"] = ui->todolist_organizations_list->currentItem()->text();
+    QJsonDocument jsonDocument(jsonObject);
+    QString req = jsonDocument.toJson(QJsonDocument::Compact);
+    sendRequest(req);
     }
-    saveOrganizations();
-    item=nullptr;
 }
 
 void ToDoList::saveOrganizations()
@@ -159,16 +200,14 @@ void ToDoList::saveOrganizations()
 
 void ToDoList::loadOrganizations()
 {
+    ui->todolist_organizations_list->clear();
     QJsonObject jsonObject;
     jsonObject["req-type"] = "user-load-orgs";
     jsonObject["username"] = this_user.perGetUsername();
     QJsonDocument jsonDocument(jsonObject);
     QString req = jsonDocument.toJson(QJsonDocument::Compact);
     sendRequest(req);
-
 }
-
-
 
 
 void ToDoList::searchOrganizations()
@@ -217,14 +256,14 @@ void ToDoList::on_actionAbout_triggered()
 
 void ToDoList::on_todolist_organizations_list_itemDoubleClicked(QListWidgetItem *item)
 {
-    OrganizationsWindow * w = new OrganizationsWindow(this);
-    connect (this,SIGNAL(org_name_signal(QString)),w,SLOT(this_org_maker(QString)));
-    emit org_name_signal(item->text());
+    connection->disconnect();
+    OrganizationsWindow * w = new OrganizationsWindow;
     w->setWindowTitle("Organization Management");
-    w->loadAllOrgPersons();
-    w->loadAllOrgTeams();
-    w->loadAllOrgProjects();
+    this->close();
     w->show();
+    w->connectionMaker(this_ip,this_port);
+    w->this_org_maker(ui->todolist_organizations_list->currentItem()->text());
+    w->this_user_maker(this_user,this_user_org_id);
 }
 
 void ToDoList::on_add_new_user_BTN_clicked()
@@ -233,4 +272,8 @@ void ToDoList::on_add_new_user_BTN_clicked()
     s->show();
 }
 
+void ToDoList::on_Refresh_orgs_BTN_clicked()
+{
+    loadOrganizations();
+}
 

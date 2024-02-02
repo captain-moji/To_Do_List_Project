@@ -24,7 +24,7 @@ class Signup : public QDialog
 public:
     explicit Signup(QWidget *parent = nullptr);
     ~Signup();
-
+    void resetPasswordType();
 signals:
     void username_completed (QString);
     void password_completed (QString);
@@ -38,10 +38,13 @@ private slots:
     void on_signup_ok_BTN_clicked();
     void on_signup_cancel_BTN_clicked();
 
+    void on_reset_password_BTN_clicked();
+
 private:
     Ui::Signup *ui;
     void make_persons_file();
-
+signals:
+    void reset_password(QString);
 };
 
 #endif // SIGNUP_H

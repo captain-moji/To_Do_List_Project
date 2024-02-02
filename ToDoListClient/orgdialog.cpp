@@ -25,10 +25,6 @@ void OrgDialog::on_page_BTN_accepted()
     {
         QMessageBox::warning(this, "Error!" , "Enter a name for organization!");
     }
-    else if (is_exsist(ui->new_organization_line_edit->text()) == true )
-    {
-        QMessageBox::warning(this, "Error!" , "This Name is exsist, try another name!");
-    }
     else
     {
         for (auto a : ui->new_organization_line_edit->text()) {
@@ -71,27 +67,7 @@ bool OrgDialog::is_exsist(QString new_name)
 
     if (type == "TEAM_DIALOG")
     {
-        QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + ORG + "/ORG_TEAMS.json" ;
 
-        QFile file(file_Path);
-        if (!file.open(QIODevice::ReadOnly))
-        {
-            return true;
-        }
-
-        QByteArray jsonData = file.readAll();
-        file.close();
-
-        QJsonDocument doc = QJsonDocument::fromJson(jsonData);
-        QJsonArray jsonArray = doc.array();
-        for (const QJsonValue& value : jsonArray) {
-            QJsonObject obj = value.toObject();
-            QString currentName = obj.value("team_name").toString();
-            if (currentName == new_name)
-            {
-                return true;
-            }
-        }
         return false;
     }
 

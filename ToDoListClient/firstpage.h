@@ -78,7 +78,6 @@ private:
 signals:
 
     void who_logged_in(QString id);
-    void socket_signal(QTcpSocket *socket);
 };
 
 #endif // FIRSTPAGE_H

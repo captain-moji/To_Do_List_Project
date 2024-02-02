@@ -22,7 +22,7 @@ void Login::on_login_page_BTN_accepted()
 void Login::on_login_forget_password_BTN_clicked()
 {
     emit req_reset_pass("reset");
-    on_login_page_BTN_rejected();
+    this->close();
 }
 
 void Login::on_login_page_BTN_rejected()
