@@ -724,7 +724,6 @@ QString OrganizationsWindow::getTeamIdByName(QString name)
             return jsonObj["team_id"].toString();
         }
     }
-
     return "";
 }
 

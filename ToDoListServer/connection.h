@@ -65,7 +65,12 @@ private slots:
     bool check_project_exsist_in_org(QString proj_name, QString org);
     void edit_project_in_org(QString proj_old_name,QString proj_new_name,QString org_name);
     void remove_project_from_org(QString proj_name, QString org);
-
+    void check_org_team_access(QString username,QString org_name,QString team_name);
+    void load_team_persons(QString team, QString org);
+    void check_org_project_access(QString username,QString org_name,QString proj_name);
+    void add_person_to_team(QString username,QString org_name,QString team_name);
+    void change_person_role_in_team(QString username,QString org_name,QString team_name);
+    void remove_person_from_team(QString username,QString org_name,QString team_name);
 
     void on_pushButton_clicked();
 
