@@ -927,18 +927,19 @@ void OrganizationsWindow:: show_org_project_to_project_admin (QString proj_name)
     qDebug() << "State = project admin";
     ProjectsWindow * t = new ProjectsWindow (this);
     t->setWindowTitle("Project Management");
-    t->this_org_maker(this_org.orgGetName());
-    t->this_project_maker(proj_name);
-    t->thisProjectShowAdmin(ui->projects_tree_widget->currentItem()->text(1));
-    t->project_this_person_maker(this_user);
-    t->project_admin_access_maker(true);
-    t->show();
 
     socket->disconnect();
     qDebug() << "org win Disconnected!";
     t->connectionMaker(this_ip,this_port);
     connect(t,SIGNAL(reconnect(QString,int)),this,SLOT(connectionMaker(QString,int)));
 
+    t->this_org_maker(this_org.orgGetName());
+    t->this_project_maker(proj_name);
+    t->thisProjectShowAdmin(ui->projects_tree_widget->currentItem()->text(1));
+    t->project_this_person_maker(this_user);
+    t->project_admin_access_maker(true,false);
+    t->loadProjectPersons();
+    t->show();
 }
 
 
@@ -947,43 +948,36 @@ void OrganizationsWindow:: show_org_project_to_admin (QString proj_name)
     qDebug() << "State = org admin";
     ProjectsWindow * t = new ProjectsWindow (this);
     t->setWindowTitle("Project Management");
-    t->this_org_maker(this_org.orgGetName());
-    t->this_project_maker(proj_name);
-    t->thisProjectShowAdmin(ui->projects_tree_widget->currentItem()->text(0));
-    t->project_this_person_maker(this_user);
-    t->project_admin_access_maker(true);
-    t->show();
 
     socket->disconnect();
     qDebug() << "org win Disconnected!";
     t->connectionMaker(this_ip,this_port);
     connect(t,SIGNAL(reconnect(QString,int)),this,SLOT(connectionMaker(QString,int)));
 
+    t->this_org_maker(this_org.orgGetName());
+    t->this_project_maker(proj_name);
+    t->thisProjectShowAdmin(ui->projects_tree_widget->currentItem()->text(1));
+    t->project_this_person_maker(this_user);
+    t->project_admin_access_maker(true,true);
+    t->loadProjectPersons();
+    t->show();
 }
 
-
-void OrganizationsWindow:: show_org_project_to_member (QString username , QString name, QString id, QString org_id, bool is_member , bool is_team_member)
+void OrganizationsWindow:: show_org_project_to_member(QString username , QString name, QString id, QString org_id, bool is_member , bool is_team_member)
 {
-    if (is_member == true)
-    {
-        qDebug() << "State = project member";
-    }
-    else
-    {
-    qDebug() << "State = project Team member";
-    }
-
     ProjectsWindow * t = new ProjectsWindow (this);
     t->setWindowTitle("Project Management");
+
+    socket->disconnect();
+    qDebug() << "org win Disconnected!";
+    t->connectionMaker(this_ip,this_port);
+    connect(t,SIGNAL(reconnect(QString,int)),this,SLOT(connectionMaker(QString,int)));
+    t->thisUserIsTeamMemberSetter(is_team_member);
     t->this_org_maker(this_org.orgGetName());
     t->this_project_maker(ui->projects_tree_widget->currentItem()->text(0));
     t->thisProjectShowAdmin(ui->projects_tree_widget->currentItem()->text(1));
     t->project_this_person_maker(this_user);
-    t->project_admin_access_maker(false);
+    t->project_admin_access_maker(false,false);
+    t->loadProjectPersons();
     t->show();
-
-    socket->disconnect();
-    qDebug() << "org win Disconnected!";
-    t->connectionMaker(this_ip,this_port);
-    connect(t,SIGNAL(reconnect(QString,int)),this,SLOT(connectionMaker(QString,int)));
 }
