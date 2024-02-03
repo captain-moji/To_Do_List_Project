@@ -10,7 +10,7 @@
 #include <QTreeWidgetItem>
 #include <taskwindow.h>
 #include <QTcpSocket>
-
+#include <orgdialog.h>
 
 namespace Ui {
 class ProjectsWindow;
@@ -35,14 +35,16 @@ public:
     void removeTeamfromProject(QString);
 
     void AddNewTaskToProject(Task);
-
-
+    void loadProjectTasks();
+    void removeTaskFromProject(QString task_name);
+    void EditTaskArchive(QString task_title);
+    void EditTaskInProject(QString old_task , Task edited_task);
 
 public slots:
     void this_project_maker (QString);
     void this_org_maker(QString);
     void project_this_person_maker (OrgPerson);
-    void project_admin_access_maker (bool);
+    void project_admin_access_maker (bool admin_access, bool org_admin_access);
 
     void socket_readyRead();
     void socket_connected();
@@ -52,6 +54,9 @@ public slots:
     void sendRequest(QString s);
     void responseChecker(QString);
     void connectionMaker(QString,int);
+
+    void thisUserIsTeamMemberSetter(bool a);
+
 
 private slots:
 
@@ -77,10 +82,39 @@ private slots:
 
     void project_task_maker(Task);
 
+    void show_project_persons(QString);
+
+    void show_project_teams(QString s);
+
+    void show_project_tasks(QString s);
+
+    void show_teams_in_combobox(QString s);
+
     void closeEvent(QCloseEvent *event);
 
+    void on_remove_task_BTN_clicked();
+
+    void on_project_tasks_tree_widget_itemDoubleClicked(QTreeWidgetItem *item, int column);
+
+    void on_archive_unarchive_BTN_clicked();
+
+    void edited_project_task(Task);
+
+    void on_search_task_line_edit_textChanged(const QString &arg1);
+
+    void on_archived_checkbox_stateChanged(int arg1);
+
+    void on_not_archived_checkbox_stateChanged(int arg1);
+
+    void search_task();
+
+    void edit_project_task(QString s);
+
+
+
 private:
-    bool admin_access;
+    bool is_admin;
+    bool is_org_admin;
 
     OrgPerson this_person;
     QTcpSocket * socket;
@@ -96,8 +130,11 @@ private:
     QString this_org;
     Project this_project;
     QString this_project_admin;
+    Task this_task;
+    bool is_team_member;
 
 signals:
+    void this_task_maked(Task);
     void reconnect (QString,int);
 };
 
