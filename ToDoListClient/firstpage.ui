@@ -85,9 +85,6 @@
      </widget>
     </item>
     <item>
-     <widget class="QTextEdit" name="textEdit"/>
-    </item>
-    <item>
      <widget class="QWidget" name="widget_2" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>

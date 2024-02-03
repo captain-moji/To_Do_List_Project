@@ -203,7 +203,6 @@ void FirstPage::password_checker(QString p)
 
     QJsonDocument jsonDocument(jsonObject);
     QString req = jsonDocument.toJson(QJsonDocument::Compact);
-    ui->textEdit->append(req);
     sendRequest(req);
 
 }
@@ -273,7 +272,6 @@ void FirstPage::name_setter(QString u)
 
     QJsonDocument jsonDocument(jsonObject);
     QString req = jsonDocument.toJson(QJsonDocument::Compact);
-    ui->textEdit->append(req);
     sendRequest(req);
 }
 

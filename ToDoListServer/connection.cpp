@@ -2,6 +2,7 @@
 #include "ui_connection.h"
 
 #include <todolist.h>
+#include <QJsonValue>
 
 Connection::Connection(QWidget *parent)
     : QMainWindow(parent)
@@ -236,8 +237,119 @@ void Connection::serverReqActions(QString received_message)
         QString username = jsonObject["username"].toString();
         remove_person_from_team(username,org_name,team_name);
     }
+    if (reqtype == "poject_persons_list")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        QString proj_name = jsonObject["projname"].toString();
+        load_project_persons(proj_name,org_name);
+    }
+    if (reqtype == "poject_teams_list")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        QString proj_name = jsonObject["projname"].toString();
+        load_project_teams(proj_name,org_name);
+    }
+    if (reqtype == "poject_tasks_list")
+    {
+        QString org_name = jsonObject["orgname"].toString();
+        QString proj_name = jsonObject["projname"].toString();
+        load_project_tasks(proj_name,org_name);
+    }
+    if(reqtype =="add-new-person-to-project")
+    {
+        QString org = jsonObject["orgname"].toString();
+        QString project = jsonObject["projname"].toString();
+        QString user = jsonObject["username"].toString();
+        add_person_to_project (user,project, org);
+    }
+    if(reqtype =="remove-person-from-project")
+    {
+        QString org = jsonObject["orgname"].toString();
+        QString project = jsonObject["projname"].toString();
+        QString user = jsonObject["username"].toString();
+        remove_person_from_project(user,org,project);
+    }
+    if(reqtype =="change-person-role-in-project")
+    {
+        QString org = jsonObject["orgname"].toString();
+        QString project = jsonObject["projname"].toString();
+        QString user = jsonObject["username"].toString();
+        change_person_role_in_project(user,org,project);
+    }
+    if(reqtype =="load-org-teams-in-project")
+    {
+        QString org = jsonObject["orgname"].toString();
+        load_org_teams_in_project(org);
+    }
+    if(reqtype =="add-teams-to-project")
+    {
+        QString org = jsonObject["orgname"].toString();
+        QString teamname = jsonObject["teamname"].toString();
+        QString projname = jsonObject["projname"].toString();
+        add_team_to_project(teamname, projname,org);
+    }
+    if(reqtype =="remove-team-from-project")
+    {
+        QString org = jsonObject["orgname"].toString();
+        QString teamname = jsonObject["teamname"].toString();
+        QString projname = jsonObject["projname"].toString();
+        remove_team_from_project(teamname, projname,org);
+    }
+    if(reqtype =="add-task-to-project")
+    {
+        QString org = jsonObject["orgname"].toString();
+        QString projname = jsonObject["projname"].toString();
+
+        Task temp_task;
+        temp_task.taskSetDate(jsonObject["taskdate"].toString());
+        temp_task.taskSetDescription(jsonObject["tasktitle"].toString());
+        temp_task.taskSetOwnerName(jsonObject["taskownername"].toString());
+        temp_task.taskSetTitle(jsonObject["tasktitle"].toString());
+        temp_task.taskSetPriority(jsonObject["taskpriority"].toString());
+        temp_task.taskSetIsArchived(jsonObject["taskarchived"].toBool());
+        temp_task.taskSetDescription(jsonObject["taskdescription"].toString());
+        add_task_to_project(temp_task, projname,org );
+    }
+    if(reqtype =="remove-task-from-project")
+    {
+        QString org = jsonObject["orgname"].toString();
+        QString taskname = jsonObject["taskname"].toString();
+        QString projname = jsonObject["projname"].toString();
+        remove_task_from_project(taskname, projname,org);
+    }
+    if(reqtype =="edit-task-archive-in-project")
+    {
+        QString org = jsonObject["orgname"].toString();
+        QString taskname = jsonObject["taskname"].toString();
+        QString projname = jsonObject["projname"].toString();
+        edit_task_archive_in_project(taskname, projname,org);
+    }
+    if(reqtype =="edit-task-in-project")
+    {
+        QString org = jsonObject["orgname"].toString();
+        QString taskname = jsonObject["taskname"].toString();
+        QString projname = jsonObject["projname"].toString();
+        edit_task_in_project(taskname, projname,org);
+    }
 
 
+    if(reqtype =="save-edited-task-project")
+    {
+        QString org = jsonObject["orgname"].toString();
+        QString projname = jsonObject["projname"].toString();
+        QString old_task_title = jsonObject["oldtasktitle"].toString();
+
+        Task temp_task;
+        temp_task.taskSetDate(jsonObject["taskdate"].toString());
+        temp_task.taskSetTitle(jsonObject["tasktitle"].toString());
+        temp_task.taskSetOwnerName(jsonObject["taskownername"].toString());
+        temp_task.taskSetPriority(jsonObject["taskpriority"].toString());
+        temp_task.taskSetIsArchived(jsonObject["taskarchived"].toBool());
+        temp_task.taskSetDescription(jsonObject["taskdescription"].toString());
+        temp_task.taskSetOwnerID(jsonObject["taskownertype"].toString());
+        temp_task.taskSetOwnerType(jsonObject["taskownerid"].toString());
+        save_edited_task_in_project(temp_task, old_task_title, projname,org );
+    }
 }
 
 void Connection::server_newConnection()
@@ -1076,7 +1188,6 @@ void Connection::load_org_projects(QString org_name)
     QJsonDocument newDoc(obj);
     QString jsonString = QString::fromUtf8(newDoc.toJson());
     serverResponse(jsonString);
-
 }
 
 void Connection::add_project_to_org(QString proj_name, QString org_name)
@@ -1382,7 +1493,6 @@ void Connection::add_person_to_team(QString username, QString org_name,QString t
     serverResponse(newJson);
 }
 
-
 void Connection::change_person_role_in_team(QString username,QString org_name,QString team_name)
 {
     TeamsWindow * t = new TeamsWindow;
@@ -1410,6 +1520,232 @@ void Connection::remove_person_from_team(QString username,QString org_name,QStri
     QString newJson = QJsonDocument(object2).toJson();
     serverResponse(newJson);
 }
+
+void Connection::load_project_persons(QString project, QString org)
+{
+    QString Pathfile = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org + "/ORG_PROJECTS/" + project + "/PROJECT_PERSON.json";
+    QFile file(Pathfile);
+    file.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file.readAll();
+    file.close();
+    QJsonDocument doc(QJsonDocument::fromJson(jsonData));
+    QJsonObject obj;
+    obj["res-state"] = "project-persons-list-ok";
+    obj["project-persons"] = doc.array();
+    QJsonDocument newDoc(obj);
+    QString jsonString = QString::fromUtf8(newDoc.toJson());
+    serverResponse(jsonString);
+}
+
+
+void Connection::load_project_teams(QString project, QString org)
+{
+    QString Pathfile = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org + "/ORG_PROJECTS/" + project + "/PROJECT_TEAMS.json";
+    QFile file(Pathfile);
+    file.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file.readAll();
+    file.close();
+    QJsonDocument doc(QJsonDocument::fromJson(jsonData));
+    QJsonObject obj;
+    obj["res-state"] = "project-teams-list-ok";
+    obj["project-teams"] = doc.array();
+    QJsonDocument newDoc(obj);
+    QString jsonString = QString::fromUtf8(newDoc.toJson());
+    serverResponse(jsonString);
+}
+
+
+void Connection::load_project_tasks(QString project, QString org)
+{
+    QString Pathfile = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org + "/ORG_PROJECTS/" + project + "/PROJECT_TASKS.json";
+    QFile file(Pathfile);
+    file.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file.readAll();
+    file.close();
+    QJsonDocument doc(QJsonDocument::fromJson(jsonData));
+    QJsonObject obj;
+    obj["res-state"] = "project-tasks-list-ok";
+    obj["project-tasks"] = doc.array();
+    QJsonDocument newDoc(obj);
+    QString jsonString = QString::fromUtf8(newDoc.toJson());
+    serverResponse(jsonString);
+}
+
+
+void Connection::add_person_to_project (QString user,QString project,QString org)
+{
+    ProjectsWindow * p = new ProjectsWindow;
+    p->this_org_maker(org);
+    p->this_project_maker(project);
+    p->addNewProjectPerson(user);
+
+    QJsonObject object2;
+    object2.insert("res-state", "add-person-to-project-ok");
+    object2.insert("message", "person added to project!");
+    QString newJson = QJsonDocument(object2).toJson();
+    serverResponse(newJson);
+}
+
+void Connection::remove_person_from_project(QString username, QString org_name, QString proj_name)
+{
+    ProjectsWindow * p = new ProjectsWindow;
+    p->this_org_maker(org_name);
+    p->this_project_maker(proj_name);
+    p->removeProjectPerson(username);
+
+    QJsonObject object2;
+    object2.insert("res-state", "remove-person-from-project-ok");
+    object2.insert("message", "person removed from project!");
+    QString newJson = QJsonDocument(object2).toJson();
+    serverResponse(newJson);
+}
+
+void Connection::change_person_role_in_project(QString username, QString org_name, QString proj_name)
+{
+    ProjectsWindow * p = new ProjectsWindow;
+    p->this_org_maker(org_name);
+    p->this_project_maker(proj_name);
+    p->changeProjectAdmin(username);
+
+    QJsonObject object2;
+    object2.insert("res-state", "change-person-role-in-project-ok");
+    object2.insert("message", "the user is admin now!");
+    QString newJson = QJsonDocument(object2).toJson();
+    serverResponse(newJson);
+}
+
+void Connection::load_org_teams_in_project(QString org_name)
+{
+    QString Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org_name + "/ORG_TEAMS.json";
+    QFile file(Path);
+    file.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file.readAll();
+    file.close();
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    QJsonObject obj;
+    obj["res-state"] = "load-org-teams-in-project-ok";
+    obj["org-teams"] = doc.array();
+    QJsonDocument newDoc(obj);
+    QString jsonString = QString::fromUtf8(newDoc.toJson());
+    serverResponse(jsonString);
+
+}
+
+
+void Connection::add_team_to_project(QString team_name, QString project_name,QString org_name)
+{
+    ProjectsWindow * p = new ProjectsWindow;
+    p->this_org_maker(org_name);
+    p->this_project_maker(project_name);
+    p->addTeamToProject(team_name);
+
+    QJsonObject object2;
+    object2.insert("res-state", "add-team-to-project-ok");
+    object2.insert("message", "Team added!");
+    QString newJson = QJsonDocument(object2).toJson();
+    serverResponse(newJson);
+}
+
+void Connection::remove_team_from_project(QString team_name, QString project_name,QString org_name)
+{
+    ProjectsWindow * p = new ProjectsWindow;
+    p->this_org_maker(org_name);
+    p->this_project_maker(project_name);
+    p->removeTeamfromProject(team_name);
+
+    QJsonObject object2;
+    object2.insert("res-state", "remove-team-from-project-ok");
+    object2.insert("message", "Team Removed!");
+    QString newJson = QJsonDocument(object2).toJson();
+    serverResponse(newJson);
+}
+
+void Connection::add_task_to_project(Task temp_task , QString proj , QString org)
+{
+    ProjectsWindow * p = new ProjectsWindow;
+    p->this_org_maker(org);
+    p->this_project_maker(proj);
+    p->AddNewTaskToProject(temp_task);
+
+    QJsonObject object2;
+    object2.insert("res-state", "add-task-to-project-ok");
+    object2.insert("message", "Task added!");
+    QString newJson = QJsonDocument(object2).toJson();
+    serverResponse(newJson);
+
+}
+
+void Connection::remove_task_from_project(QString taskname, QString project_name,QString org_name)
+{
+    ProjectsWindow * p = new ProjectsWindow;
+    p->this_org_maker(org_name);
+    p->this_project_maker(project_name);
+    p->removeTaskFromProject(taskname);
+
+    QJsonObject object2;
+    object2.insert("res-state", "remove-task-from-project-ok");
+    object2.insert("message", "task Removed!");
+    QString newJson = QJsonDocument(object2).toJson();
+    serverResponse(newJson);
+}
+
+void Connection::edit_task_archive_in_project(QString taskname, QString project_name,QString org_name)
+{
+    ProjectsWindow * p = new ProjectsWindow;
+    p->this_org_maker(org_name);
+    p->this_project_maker(project_name);
+    p->EditTaskArchive(taskname);
+
+    QJsonObject object2;
+    object2.insert("res-state", "edit-task-archive-in-project-ok");
+    object2.insert("message", "task archive changed!");
+    QString newJson = QJsonDocument(object2).toJson();
+    serverResponse(newJson);
+}
+
+void Connection::edit_task_in_project(QString taskname, QString project_name,QString org_name)
+{
+    QString Pathfile = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org_name + "/ORG_PROJECTS/" + project_name + "/PROJECT_TASKS.json";
+
+    QFile file(Pathfile);
+    file.open(QIODevice::ReadOnly);
+    QString val = file.readAll();
+    file.close();
+
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(val.toUtf8());
+    QJsonArray tasksArray = jsonResponse.array();
+    QString res;
+    for (const QJsonValue &value : tasksArray) {
+        QJsonObject taskObject = value.toObject();
+        if (taskObject["task_title"].toString() == taskname) {
+            QJsonObject resultObject;
+            resultObject["res-state"] = "project-task-details-ok";
+            resultObject["object"] = QJsonArray({taskObject});
+            QJsonDocument resultDocument(resultObject);
+            res = resultDocument.toJson();
+            break;
+        }
+    }
+    serverResponse(res);
+}
+
+
+
+void Connection::save_edited_task_in_project(Task temp_task, QString old_task_title, QString projname, QString org )
+{
+    ProjectsWindow * p = new ProjectsWindow;
+    p->this_org_maker(org);
+    p->this_project_maker(projname);
+    p->EditTaskInProject(old_task_title,temp_task);
+
+    QJsonObject object2;
+    object2.insert("res-state", "edit-task-in-project-ok");
+    object2.insert("message", "Task Edited!");
+    QString newJson = QJsonDocument(object2).toJson();
+    serverResponse(newJson);
+
+}
+
 
 
 void Connection::on_pushButton_clicked()
