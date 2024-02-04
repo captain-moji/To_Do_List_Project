@@ -82,9 +82,12 @@ private slots:
     void on_task_remove_comment_BTN_clicked();
 
 signals:
-    void new_task_maked(QString, Task);
+    //void new_task_maked(QString, Task);
+    void new_task_maked(Task);
 
-    void task_edited(QString, Task);
+    void task_edited(Task);
+
+    //void task_edited(QString, Task);
     void comments_saved(QString);
 
 

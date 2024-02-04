@@ -19,7 +19,8 @@
 #include <QListWidget>
 #include <allserverusers.h>
 #include <orgdialog.h>
-
+#include <QTimer>
+#include <QDateTime>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -71,8 +72,16 @@ private slots:
 
     void on_search_organizations_qstring_textChanged(const QString &arg1);
 
+    void on_pushButton_2_clicked();
+
+    void ser_server_info(QString user,QString pass);
+
+    void time_counter();
+
 private:
     Ui::ToDoList *ui;
+    QString this_time;
+    QTimer * timer;
 
 signals:
     void org_name_signal(QString);

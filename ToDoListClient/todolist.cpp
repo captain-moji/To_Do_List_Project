@@ -6,6 +6,10 @@ ToDoList::ToDoList(QWidget *parent)
     , ui(new Ui::ToDoList)
 {
     ui->setupUi(this);
+    timer = new QTimer (this);
+    connect (timer,SIGNAL(timeout()),this,SLOT(time_counter()));
+    timer->start();
+
 }
 
 ToDoList::~ToDoList()
@@ -277,3 +281,12 @@ void ToDoList::on_Refresh_orgs_BTN_clicked()
     loadOrganizations();
 }
 
+
+
+void ToDoList::time_counter()
+{
+    QTime time = QTime:: currentTime();
+    QString time_text = time.toString("hh:mm:ss");
+    this_time = " [" + time_text + "]   ";
+    ui->time_shower->setText("Time: " + time_text );
+}

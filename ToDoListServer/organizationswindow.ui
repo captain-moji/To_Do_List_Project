@@ -20,13 +20,13 @@
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>200</height>
+        <height>150</height>
        </size>
       </property>
       <widget class="QLabel" name="org_name_lable">
        <property name="geometry">
         <rect>
-         <x>240</x>
+         <x>260</x>
          <y>10</y>
          <width>261</width>
          <height>44</height>
@@ -42,13 +42,16 @@
        <property name="text">
         <string>TextLabel</string>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
       </widget>
       <widget class="QLabel" name="organization_name_text">
        <property name="geometry">
         <rect>
          <x>11</x>
          <y>10</y>
-         <width>214</width>
+         <width>250</width>
          <height>44</height>
         </rect>
        </property>

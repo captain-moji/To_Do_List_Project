@@ -109,6 +109,7 @@ void FirstPage::password_checker(QString p)
         ToDoList * td = new ToDoList();
         td->show();
         Connection * connection = new Connection;
+        connection->SetPort(ui->port_text_edit->text().toInt());
         connection->serverTurnOn();
         this->close();
     }
@@ -121,4 +122,10 @@ void FirstPage::password_checker(QString p)
     }
 }
 
+
+void FirstPage::on_set_server_BTN_clicked()
+{
+    port = ui->port_text_edit->text().toInt();
+    QMessageBox ::information( this, "connected!" ,"connected!");
+}
 

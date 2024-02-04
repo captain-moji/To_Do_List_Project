@@ -20,6 +20,17 @@
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QLabel" name="projects_name_label">
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Project Name:</string>
          </property>
@@ -27,6 +38,11 @@
        </item>
        <item>
         <widget class="QLabel" name="projects_name_text">
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>name</string>
          </property>
@@ -34,6 +50,17 @@
        </item>
        <item>
         <widget class="QLabel" name="Project_admin_label">
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Project Admin:</string>
          </property>
@@ -41,6 +68,11 @@
        </item>
        <item>
         <widget class="QLabel" name="Project_admin_text">
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string/>
          </property>

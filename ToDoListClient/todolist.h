@@ -18,6 +18,8 @@
 #include <allserverusers.h>
 #include <orgdialog.h>
 #include <QTcpSocket>
+#include <QTimer>
+#include <QDateTime>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -81,7 +83,12 @@ private slots:
 
     void on_Refresh_orgs_BTN_clicked();
 
+    void time_counter();
+
 private:
+    QString this_time;
+    QTimer * timer;
+
     Ui::ToDoList *ui;
     Person this_user;
     QString this_user_org_id;

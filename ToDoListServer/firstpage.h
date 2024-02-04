@@ -34,11 +34,14 @@ private slots:
     void username_checker(QString u);
     void password_checker(QString p);
 
+    void on_set_server_BTN_clicked();
+
 private:
 
     bool user_correct;
     QString username;
     QString password;
+    int port;
 
     void make_data_folder();
     void make_admin_file();
