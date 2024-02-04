@@ -10,6 +10,7 @@
 #include <QTreeWidgetItem>
 #include <taskwindow.h>
 #include "personsandteamswindow.h"
+#include <orgperson.h>
 
 namespace Ui {
 class ProjectsWindow;

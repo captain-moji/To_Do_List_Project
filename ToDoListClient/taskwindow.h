@@ -6,6 +6,17 @@
 #include <QMessageBox>
 #include <QStringList>
 #include <QListWidgetItem>
+#include <QMessageBox>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
+#include <QDateTime>
+#include <organization.h>
+#include <orgdialog.h>
+#include <orgperson.h>
+#include <project.h>
+#include <task.h>
+#include <comment.h>
+#include <QtAlgorithms>
 
 
 namespace Ui
@@ -23,6 +34,20 @@ public:
     void typeSetter(QString);
     void thisOrgProjectSetter(QString,QString);
     void ownerListSetter (QStringList teams , QStringList persons);
+
+
+    void thisOrgSetter(QString);
+    void thisprojectSetter(QString);
+    void thistaskSetter(const Task &);
+    void thisCommentSetter(Comment &);
+    QVector<Comment> &commentsGetter();
+
+    void thisPersonSetter(const OrgPerson &);
+
+public slots:
+    void loadTaskComments(QString s);
+    void addCommentsToTree();
+
 private slots:
 
     void on_make_new_task_BTN_clicked();
@@ -41,9 +66,26 @@ private slots:
 
     void on_Owner_type_combobox_currentTextChanged(const QString &arg1);
 
+
+    void on_task_add_new_comment_BTN_clicked();
+    void add_comment(QString text);
+
+    QString saveTaskComments();
+
+    void addCommentToTree(Comment &comment, QTreeWidgetItem *item);
+    Comment getCommentFromItem(QTreeWidgetItem *item);
+    void getCommentFromTree();
+
+    void on_task_add_new_reply_BTN_clicked();
+    void add_reply(QString text);
+
+    void on_task_remove_comment_BTN_clicked();
+
 signals:
-    void new_task_maked(Task);
-    void task_edited(Task);
+    void new_task_maked(QString, Task);
+
+    void task_edited(QString, Task);
+    void comments_saved(QString);
 
 
 private:
@@ -56,6 +98,12 @@ private:
     QString this_project;
     Ui::TaskWindow *ui;
 
+    QVector<Comment> comments;
+    Comment this_comment;
+
+    OrgPerson this_person;
+
+    QString json;
 
 };
 

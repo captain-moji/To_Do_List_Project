@@ -85,6 +85,8 @@ private slots:
     void edit_task_archive_in_project(QString taskname, QString project_name,QString org_name);
     void edit_task_in_project(QString taskname, QString project_name,QString org_name);
     void save_edited_task_in_project(Task temp_task, QString old_task_title, QString projname, QString org );
+    void load_task_comments(QString org_name, QString proj_name, QString task_title);
+    void save_task_comments(QString org_name, QString proj_name, QString task_title, QString comments);
 
     void on_pushButton_clicked();
 

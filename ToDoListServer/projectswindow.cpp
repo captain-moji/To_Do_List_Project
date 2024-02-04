@@ -940,7 +940,16 @@ void ProjectsWindow::on_project_tasks_tree_widget_itemDoubleClicked(QTreeWidgetI
     w->typeSetter("EDIT_TASK");
     w->thisOrgProjectSetter(this_org,this_project.projGetName());
     emit this_task_maked(this_task);
+    w->thisOrgSetter(this_org);
+    w->thisprojectSetter(this_project.projGetName());
+    w->thistaskSetter(this_task);
+    OrgPerson p;
+    p.perSetName("Server");
+    w->thisPersonSetter(p);
+    w->loadTaskComments();
+    w->addCommentsToTree();
     w->show();
+
 }
 
 void ProjectsWindow::edit_project_task(Task edited_task)
