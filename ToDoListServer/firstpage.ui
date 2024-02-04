@@ -48,7 +48,7 @@
     <item>
      <widget class="QWidget" name="widget" native="true">
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
+       <item row="1" column="0">
         <widget class="QWidget" name="widget_3" native="true">
          <property name="maximumSize">
           <size>
@@ -73,20 +73,7 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QPushButton" name="set_server_BTN">
-         <property name="text">
-          <string>Set Port</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QWidget" name="widget_2" native="true">
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
+       <item row="3" column="0">
         <widget class="QPushButton" name="first_page_login_BTN">
          <property name="text">
           <string>Login</string>
@@ -94,6 +81,21 @@
          <property name="default">
           <bool>true</bool>
          </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="set_server_BTN">
+         <property name="text">
+          <string>Set Port</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QWidget" name="widget_2" native="true">
+         <property name="styleSheet">
+          <string notr="true">image: url(:/Server_Connect.png);</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout"/>
         </widget>
        </item>
       </layout>

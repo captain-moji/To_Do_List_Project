@@ -28,6 +28,7 @@ public:
     void serverTurnOff();
     void serverResponse(QString);
     void serverReqActions(QString);
+    void SetPort(int p);
     explicit Connection(QWidget *parent = nullptr);
     ~Connection();
 
@@ -90,13 +91,14 @@ private slots:
 
     void on_pushButton_clicked();
 
+
 private:
 
     OrgPerson temp_org_person;
 
 
 
-    int port = 1234;
+    int this_port;
     QString resp;
     QTcpServer *server = nullptr;
     QTcpSocket *socket = nullptr;

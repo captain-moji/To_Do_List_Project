@@ -1,5 +1,7 @@
 #include "todolist.h"
 #include "ui_todolist.h"
+#include <setserverinfo.h>
+#include <QTextStream>
 
 ToDoList::ToDoList(QWidget *parent)
     : QMainWindow(parent)
@@ -8,6 +10,11 @@ ToDoList::ToDoList(QWidget *parent)
     ui->setupUi(this);
     makeOrganizationsFile();
     loadOrganizations();
+
+    timer = new QTimer (this);
+    connect (timer,SIGNAL(timeout()),this,SLOT(time_counter()));
+    timer->start();
+
 }
 
 ToDoList::~ToDoList()
@@ -250,4 +257,54 @@ void ToDoList::on_add_new_user_BTN_clicked()
     s->show();
 }
 
+
+void ToDoList::on_pushButton_2_clicked()
+{
+    SetServerinfo *s = new SetServerinfo(this);
+    connect(s,SIGNAL(set_user_pass(QString,QString)),this,SLOT(ser_server_info(QString,QString)));
+    s->show();
+}
+
+void ToDoList::ser_server_info(QString user,QString pass)
+{
+    QCryptographicHash hash(QCryptographicHash::Sha256);
+    QByteArray textBytes = pass.toUtf8();
+    hash.addData(textBytes);
+    QByteArray hashedText = hash.result();
+    QString hashedHex = hashedText.toHex();
+    QString hashed_pass=hashedHex;
+    QString username = user;
+    QString file_Path = QDir::currentPath() + "/APPDATA/SERVER_USER.json";
+
+    QFile file(file_Path);
+
+    file.open(QIODevice::ReadOnly);
+
+    QByteArray jsonData = file.readAll();
+    file.close();
+
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
+    QJsonObject jsonObj = jsonDoc.object();
+
+    jsonObj["username"] = username;
+    jsonObj["password"] = hashed_pass;
+
+
+    QFile saveFile(file_Path);
+    saveFile.open(QIODevice::WriteOnly);
+    QJsonDocument saveDoc(jsonObj);
+
+    saveFile.write(saveDoc.toJson());
+    saveFile.close();
+    QMessageBox ::information( this, "changed!" ,"changed!");
+}
+
+
+void ToDoList::time_counter()
+{
+    QTime time = QTime:: currentTime();
+    QString time_text = time.toString("hh:mm:ss");
+    this_time = " [" + time_text + "]   ";
+    ui->time_shower->setText("Time: " + time_text );
+}
 

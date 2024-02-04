@@ -18,6 +18,7 @@ SOURCES += \
     orgperson.cpp \
     personsandteamswindow.cpp \
     projectswindow.cpp \
+    setserverinfo.cpp \
     task.cpp \
     comment.cpp \
     firstpage.cpp \
@@ -42,6 +43,7 @@ HEADERS += \
     orgperson.h \
     personsandteamswindow.h \
     projectswindow.h \
+    setserverinfo.h \
     task.h \
     comment.h \
     firstpage.h \
@@ -66,6 +68,7 @@ FORMS += \
     orgdialog.ui \
     personsandteamswindow.ui \
     projectswindow.ui \
+    setserverinfo.ui \
     signup.ui \
     taskwindow.ui \
     teamswindow.ui \
@@ -75,3 +78,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    pics/pics.qrc

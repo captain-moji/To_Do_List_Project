@@ -688,6 +688,7 @@ void ProjectsWindow::maked_taskwindow(QString s)
     TaskWindow * w = new TaskWindow (this);
     connect (this,SIGNAL(this_task_maked(Task)),w,SLOT(this_task_maker(Task)));
     connect (w,SIGNAL(task_edited(QString,Task)),this,SLOT(edited_project_task(QString,Task)));
+    connect (w,SIGNAL(task_edited(Task)),this,SLOT(edited_project_task(Task)));
     w->typeSetter("EDIT_TASK");
     w->ownerListSetter(temp_teams_list,temp_persons_list);
     w->thisOrgProjectSetter(this_org,this_project.projGetName());
@@ -743,30 +744,31 @@ void ProjectsWindow::edit_project_task(QString s)
 
     temp_persons_list = persons_list;
 
-    QJsonObject jsonObject2;
-    jsonObject2["req-type"] = "load-task-comments";
-    jsonObject2["orgname"] = this_org;
-    jsonObject2["projname"] = this_project.projGetName();
-    jsonObject2["tasktitle"] = this_task.taskGetTitle();
+    //QJsonObject jsonObject2;
+    //jsonObject2["req-type"] = "load-task-comments";
+    //jsonObject2["orgname"] = this_org;
+    //jsonObject2["projname"] = this_project.projGetName();
+    //jsonObject2["tasktitle"] = this_task.taskGetTitle();
 
-    QJsonDocument jsonDocument(jsonObject2);
-    QString req = jsonDocument.toJson(QJsonDocument::Compact);
-    sendRequest(req);
-    // TaskWindow * w = new TaskWindow (this);
-    // connect (this,SIGNAL(this_task_maked(Task)),w,SLOT(this_task_maker(Task)));
-    // connect (w,SIGNAL(task_edited(Task)),this,SLOT(edited_project_task(Task)));
-    // w->typeSetter("EDIT_TASK");
-    // w->ownerListSetter(teams_list,persons_list);
-    // w->thisOrgProjectSetter(this_org,this_project.projGetName());
-    // emit this_task_maked(editing_task);
-    // w->show();
+    //QJsonDocument jsonDocument(jsonObject2);
+    //QString req = jsonDocument.toJson(QJsonDocument::Compact);
+    //sendRequest(req);
+     TaskWindow * w = new TaskWindow (this);
+     connect (this,SIGNAL(this_task_maked(Task)),w,SLOT(this_task_maker(Task)));
+     connect (w,SIGNAL(task_edited(Task)),this,SLOT(edited_project_task(Task)));
+     w->typeSetter("EDIT_TASK");
+     w->ownerListSetter(teams_list,persons_list);
+     w->thisOrgProjectSetter(this_org,this_project.projGetName());
+     emit this_task_maked(editing_task);
+     w->show();
 }
+//void ProjectsWindow::edited_project_task(QString req,Task edited_task)
 
-void ProjectsWindow::edited_project_task(QString req,Task edited_task)
+void ProjectsWindow::edited_project_task(Task edited_task)
 {
     again_temp_task = edited_task;
-    sendRequest(req);
-
+    //sendRequest(req);
+    EditAnSpecialTaskInProject(edited_task);
 }
 
 void ProjectsWindow::EditTaskInProject(QString old_task , Task edited_task)

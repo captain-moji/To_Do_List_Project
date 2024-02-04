@@ -67,7 +67,9 @@ void TaskWindow::on_make_new_task_BTN_clicked()
     this_task.taskSetPriority(ui->Priority_combobox->currentText());
     this_task.taskSetOwnerID(temp_owner_id);
     this_task.taskSetOwnerName(temp_owner_name);
-    emit new_task_maked(req, this_task);
+    //emit new_task_maked(req, this_task);
+    emit new_task_maked(this_task);
+
     this->close();
 }
 
@@ -90,8 +92,9 @@ void TaskWindow::on_save_task_BTN_clicked()
         this_task.taskSetOwnerID(temp_owner_id);
     if (temp_owner_name !="")
         this_task.taskSetOwnerName(temp_owner_name);
+    emit task_edited(this_task);
 
-    emit task_edited(req, this_task);
+    //emit task_edited(req, this_task);
     this->close();
 }
 

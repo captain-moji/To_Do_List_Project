@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Server_start_page_frame.png</file>
+        <file>Server_Connect.png</file>
+        <file>server_main picture.png</file>
+        <file>forget_password.png</file>
+        <file>log_in_page.png</file>
+    </qresource>
+</RCC>

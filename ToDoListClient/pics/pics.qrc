@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Client_start_page_frame.png</file>
+        <file>Client_main picture.png</file>
+        <file>Client_connect_to_server.png</file>
+        <file>forget_password.png</file>
+        <file>log_in_page.png</file>
+        <file>sign_up_page.png</file>
+    </qresource>
+</RCC>

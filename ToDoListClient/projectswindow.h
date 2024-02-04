@@ -103,7 +103,9 @@ private slots:
 
     void save_comments(QString);
 
-    void edited_project_task(QString,Task);
+    //void edited_project_task(QString,Task);
+
+    void edited_project_task(Task);
 
     void on_search_task_line_edit_textChanged(const QString &arg1);
 

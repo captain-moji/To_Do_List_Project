@@ -26,7 +26,7 @@ void Connection::serverTurnOn()
 
     else {
         server = new QTcpServer();
-        server->listen(QHostAddress::Any, 1234);
+        server->listen(QHostAddress::Any, this_port);
 
         if ( server->isListening() ) {
             connect(server, &QTcpServer::newConnection, this, &Connection::server_newConnection);
@@ -368,6 +368,11 @@ void Connection::serverReqActions(QString received_message)
         QString comments = jsonObject["task_comments"].toString();
         save_task_comments(org, projname, tasktitle, comments);
     }
+}
+
+void Connection::SetPort(int p)
+{
+    this_port = p;
 }
 
 void Connection::server_newConnection()
