@@ -70,6 +70,22 @@
          <widget class="QWidget" name="widget_2" native="true">
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
+            <widget class="QWidget" name="widget" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <widget class="QLabel" name="title_label">
+                <property name="text">
+                 <string>Title:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="title_line_edit"/>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="description_text">
              <property name="font">
               <font>
@@ -101,22 +117,6 @@
              <property name="overwriteMode">
               <bool>false</bool>
              </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QWidget" name="widget" native="true">
-             <layout class="QHBoxLayout" name="horizontalLayout">
-              <item>
-               <widget class="QLabel" name="title_label">
-                <property name="text">
-                 <string>Title:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="title_line_edit"/>
-              </item>
-             </layout>
             </widget>
            </item>
            <item>
@@ -248,10 +248,20 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <widget class="QTreeWidget" name="treeWidget">
+         <widget class="QTreeWidget" name="task_comments_tree_widget">
           <column>
            <property name="text">
-            <string notr="true">1</string>
+            <string notr="true">Person</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Text</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Date</string>
            </property>
           </column>
          </widget>
@@ -260,23 +270,23 @@
          <widget class="QWidget" name="widget_10" native="true">
           <layout class="QHBoxLayout" name="horizontalLayout_8">
            <item>
-            <widget class="QPushButton" name="pushButton_3">
+            <widget class="QPushButton" name="task_add_new_comment_BTN">
              <property name="text">
-              <string>PushButton</string>
+              <string>add new comment</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton_2">
+            <widget class="QPushButton" name="task_add_new_reply_BTN">
              <property name="text">
-              <string>PushButton</string>
+              <string>add new reply</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton">
+            <widget class="QPushButton" name="task_remove_comment_BTN">
              <property name="text">
-              <string>PushButton</string>
+              <string>remove comment / reply</string>
              </property>
             </widget>
            </item>

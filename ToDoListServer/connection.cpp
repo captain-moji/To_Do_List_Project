@@ -350,6 +350,24 @@ void Connection::serverReqActions(QString received_message)
         temp_task.taskSetOwnerType(jsonObject["taskownerid"].toString());
         save_edited_task_in_project(temp_task, old_task_title, projname,org );
     }
+
+    if (reqtype == "load-task-comments")
+    {
+        QString org = jsonObject["orgname"].toString();
+        QString projname = jsonObject["projname"].toString();
+        QString tasktitle = jsonObject["tasktitle"].toString();
+
+        load_task_comments(org, projname, tasktitle);
+    }
+
+    if (reqtype == "save-task_comments")
+    {
+        QString org = jsonObject["orgname"].toString();
+        QString projname = jsonObject["projname"].toString();
+        QString tasktitle = jsonObject["tasktitle"].toString();
+        QString comments = jsonObject["task_comments"].toString();
+        save_task_comments(org, projname, tasktitle, comments);
+    }
 }
 
 void Connection::server_newConnection()
@@ -1746,7 +1764,38 @@ void Connection::save_edited_task_in_project(Task temp_task, QString old_task_ti
 
 }
 
+void Connection::load_task_comments(QString org_name, QString proj_name, QString task_title)
+{
+    QString Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org_name + "/ORG_PROJECTS/" + proj_name + "/PROJECT_TASKS/" + task_title + "TASK_COMMENTS.json";
+    QFile file(Path);
+    file.open(QIODevice::ReadOnly);
+    QByteArray jsonData = file.readAll();
+    file.close();
+    QJsonDocument doc = QJsonDocument::fromJson(jsonData);
+    QJsonObject obj;
+    obj["res-state"] = "load-task_comments-ok";
+    obj["task_comments"] = doc.array();
+    QJsonDocument newDoc(obj);
+    QString jsonString = QString::fromUtf8(newDoc.toJson());
+    serverResponse(jsonString);
 
+}
+
+void Connection::save_task_comments(QString org_name, QString proj_name, QString task_title, QString comments)
+{
+    QString Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + org_name + "/ORG_PROJECTS/" + proj_name + "/PROJECT_TASKS/" + task_title + "TASK_COMMENTS.json";
+    QJsonDocument doc = QJsonDocument::fromJson(comments.toUtf8());
+    QFile file(Path);
+    if (file.open(QFile::WriteOnly)) {
+        file.write(doc.toJson());
+    }
+
+    QJsonObject object2;
+    object2.insert("res-state", "save-task-comments-ok");
+    QString newJson = QJsonDocument(object2).toJson();
+    serverResponse(newJson);
+
+}
 
 void Connection::on_pushButton_clicked()
 {

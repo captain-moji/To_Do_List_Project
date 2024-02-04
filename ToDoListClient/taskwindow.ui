@@ -30,7 +30,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -264,6 +264,54 @@
        <attribute name="title">
         <string>Comments</string>
        </attribute>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QTreeWidget" name="task_comments_tree_widget">
+          <column>
+           <property name="text">
+            <string notr="true">Person</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Text</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Date</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QWidget" name="widget_10" native="true">
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <widget class="QPushButton" name="task_add_new_comment_BTN">
+             <property name="text">
+              <string>add new comment</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="task_add_new_reply_BTN">
+             <property name="text">
+              <string>add new reply</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="task_remove_comment_BTN">
+             <property name="text">
+              <string>remove comment / reply</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>

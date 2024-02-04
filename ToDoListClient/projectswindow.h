@@ -38,7 +38,8 @@ public:
     void loadProjectTasks();
     void removeTaskFromProject(QString task_name);
     void EditTaskArchive(QString task_title);
-    void EditTaskInProject(QString old_task , Task edited_task);
+    void EditTaskInProject(QString old_task ,Task edited_task);
+    void EditAnSpecialTaskInProject(Task edited_task);
 
 public slots:
     void this_project_maker (QString);
@@ -96,9 +97,13 @@ private slots:
 
     void on_project_tasks_tree_widget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
+    void maked_taskwindow(QString);
+
     void on_archive_unarchive_BTN_clicked();
 
-    void edited_project_task(Task);
+    void save_comments(QString);
+
+    void edited_project_task(QString,Task);
 
     void on_search_task_line_edit_textChanged(const QString &arg1);
 
@@ -110,7 +115,8 @@ private slots:
 
     void edit_project_task(QString s);
 
-
+signals:
+    void comment_saved();
 
 private:
     bool is_admin;
@@ -127,6 +133,10 @@ private:
     Team temp_team;
     OrgPerson temp_person;
     Task temp_task;
+    QStringList temp_teams_list;
+    QStringList temp_persons_list;
+    Task another_temp_task;
+    Task again_temp_task;
     QString this_org;
     Project this_project;
     QString this_project_admin;

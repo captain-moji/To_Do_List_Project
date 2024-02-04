@@ -140,6 +140,14 @@ void ProjectsWindow::responseChecker(QString s)
         QMessageBox::information(this, "Edited", mess);
         loadProjectTasks();
     }
+    if (resState == "load-task_comments-ok")
+    {
+        maked_taskwindow(s);
+    }
+    if(resState == "save-task-comments-ok")
+    {
+        EditAnSpecialTaskInProject(again_temp_task);
+    }
 }
 
 void ProjectsWindow::this_org_maker(QString a)
@@ -646,6 +654,11 @@ void ProjectsWindow::on_archive_unarchive_BTN_clicked()
     }
 }
 
+void ProjectsWindow::save_comments(QString req)
+{
+    sendRequest(req);
+}
+
 void ProjectsWindow::EditTaskArchive(QString task_title)
 {
     QJsonObject jsonObject;
@@ -670,6 +683,26 @@ void ProjectsWindow::on_project_tasks_tree_widget_itemDoubleClicked(QTreeWidgetI
         sendRequest(req);
 }
 
+void ProjectsWindow::maked_taskwindow(QString s)
+{
+    TaskWindow * w = new TaskWindow (this);
+    connect (this,SIGNAL(this_task_maked(Task)),w,SLOT(this_task_maker(Task)));
+    connect (w,SIGNAL(task_edited(QString,Task)),this,SLOT(edited_project_task(QString,Task)));
+    w->typeSetter("EDIT_TASK");
+    w->ownerListSetter(temp_teams_list,temp_persons_list);
+    w->thisOrgProjectSetter(this_org,this_project.projGetName());
+    emit this_task_maked(another_temp_task);
+    w->thisOrgSetter(this_org);
+    w->thisprojectSetter(this_project.projGetName());
+    w->thistaskSetter(this_task);
+    OrgPerson p;
+    p.perSetName(this_person.perGetName());
+    w->thisPersonSetter(p);
+    w->loadTaskComments(s);
+    w->addCommentsToTree();
+    w->show();
+}
+
 void ProjectsWindow::edit_project_task(QString s)
 {
     QJsonDocument jsonResponse = QJsonDocument::fromJson(s.toUtf8());
@@ -692,30 +725,48 @@ void ProjectsWindow::edit_project_task(QString s)
         }
     }
 
+    another_temp_task = editing_task;
+
     QStringList teams_list;
     for (int i = 0; i < ui->project_teams_list_widget->count(); ++i)
     {
         teams_list << ui->project_teams_list_widget->item(i)->text();
     }
+
+    temp_teams_list = teams_list;
+
     QStringList persons_list;
     for (int i = 0; i < ui->project_persons_tree_widget->topLevelItemCount(); ++i) {
         QTreeWidgetItem *item = ui->project_persons_tree_widget->topLevelItem(i);
         persons_list << item->text(1);
     }
 
-    TaskWindow * w = new TaskWindow (this);
-    connect (this,SIGNAL(this_task_maked(Task)),w,SLOT(this_task_maker(Task)));
-    connect (w,SIGNAL(task_edited(Task)),this,SLOT(edited_project_task(Task)));
-    w->typeSetter("EDIT_TASK");
-    w->ownerListSetter(teams_list,persons_list);
-    w->thisOrgProjectSetter(this_org,this_project.projGetName());
-    emit this_task_maked(editing_task);
-    w->show();
+    temp_persons_list = persons_list;
+
+    QJsonObject jsonObject2;
+    jsonObject2["req-type"] = "load-task-comments";
+    jsonObject2["orgname"] = this_org;
+    jsonObject2["projname"] = this_project.projGetName();
+    jsonObject2["tasktitle"] = this_task.taskGetTitle();
+
+    QJsonDocument jsonDocument(jsonObject2);
+    QString req = jsonDocument.toJson(QJsonDocument::Compact);
+    sendRequest(req);
+    // TaskWindow * w = new TaskWindow (this);
+    // connect (this,SIGNAL(this_task_maked(Task)),w,SLOT(this_task_maker(Task)));
+    // connect (w,SIGNAL(task_edited(Task)),this,SLOT(edited_project_task(Task)));
+    // w->typeSetter("EDIT_TASK");
+    // w->ownerListSetter(teams_list,persons_list);
+    // w->thisOrgProjectSetter(this_org,this_project.projGetName());
+    // emit this_task_maked(editing_task);
+    // w->show();
 }
 
-void ProjectsWindow::edited_project_task(Task edited_task)
+void ProjectsWindow::edited_project_task(QString req,Task edited_task)
 {
-    EditTaskInProject(ui->project_tasks_tree_widget->currentItem()->text(0) , edited_task);
+    again_temp_task = edited_task;
+    sendRequest(req);
+
 }
 
 void ProjectsWindow::EditTaskInProject(QString old_task , Task edited_task)
@@ -739,6 +790,11 @@ void ProjectsWindow::EditTaskInProject(QString old_task , Task edited_task)
     QString req = jsonDocument.toJson(QJsonDocument::Compact);
     sendRequest(req);
 
+}
+
+void ProjectsWindow::EditAnSpecialTaskInProject(Task edited_task)
+{
+    EditTaskInProject(ui->project_tasks_tree_widget->currentItem()->text(0) , edited_task);
 }
 
 void ProjectsWindow::search_task()
