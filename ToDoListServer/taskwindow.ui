@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>786</width>
-    <height>618</height>
+    <width>798</width>
+    <height>665</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,212 +16,275 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QWidget" name="widget" native="true">
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QLabel" name="title_label">
-         <property name="text">
-          <string>Title:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="title_line_edit"/>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QWidget" name="widget_9" native="true">
-      <layout class="QHBoxLayout" name="horizontalLayout_7">
-       <item>
-        <widget class="QLabel" name="archive_label">
-         <property name="text">
-          <string>archived:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="archive_combobox">
-         <property name="currentText">
-          <string>No</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>No</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Yes</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QWidget" name="widget_6" native="true">
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
-       <item>
-        <widget class="QLabel" name="Priority_label">
-         <property name="text">
-          <string>Priority:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="Priority_combobox">
-         <property name="currentText">
-          <string>Low</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>Low</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Normal</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>High</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QWidget" name="widget_2" native="true">
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QLabel" name="description_text">
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>description:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPlainTextEdit" name="description_text_edit">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>200</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="plainText">
-          <string/>
-         </property>
-         <property name="overwriteMode">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QWidget" name="widget_4" native="true">
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QLabel" name="date_text">
-         <property name="text">
-          <string>Date:</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QDateEdit" name="date_edit">
-         <property name="currentSection">
-          <enum>QDateTimeEdit::DaySection</enum>
-         </property>
-         <property name="displayFormat">
-          <string>yyyy-MM-dd</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QWidget" name="widget_5" native="true">
-      <layout class="QVBoxLayout" name="verticalLayout_3">
-       <item>
-        <widget class="QWidget" name="widget_7" native="true">
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <widget class="QLabel" name="owner_label">
-            <property name="text">
-             <string>Owner: </string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="owner_text">
-            <property name="text">
-             <string>TextLabel</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QWidget" name="widget_8" native="true">
-         <layout class="QHBoxLayout" name="horizontalLayout_6">
-          <item>
-           <widget class="QLabel" name="change_owner_label">
-            <property name="text">
-             <string>Change Owner: </string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="owner_type_combobox">
-            <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>200</height>
+       </size>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Details</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QWidget" name="widget_6" native="true">
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="QLabel" name="Priority_label">
              <property name="text">
-              <string>select ...</string>
+              <string>Priority:</string>
              </property>
-            </item>
-            <item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="Priority_combobox">
+             <property name="currentText">
+              <string>Low</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>Low</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Normal</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>High</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="widget_2" native="true">
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <widget class="QLabel" name="description_text">
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="text">
-              <string>Person</string>
+              <string>description:</string>
              </property>
-            </item>
-            <item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPlainTextEdit" name="description_text_edit">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>200</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="plainText">
+              <string/>
+             </property>
+             <property name="overwriteMode">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+               <widget class="QLabel" name="title_label">
+                <property name="text">
+                 <string>Title:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="title_line_edit"/>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget_9" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_7">
+              <item>
+               <widget class="QLabel" name="archive_label">
+                <property name="text">
+                 <string>archived:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="archive_combobox">
+                <property name="currentText">
+                 <string>No</string>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>No</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Yes</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget_4" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+               <widget class="QLabel" name="date_text">
+                <property name="text">
+                 <string>Date:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDateEdit" name="date_edit">
+                <property name="currentSection">
+                 <enum>QDateTimeEdit::YearSection</enum>
+                </property>
+                <property name="displayFormat">
+                 <string>yyyy-MM-dd</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget_7" native="true">
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QLabel" name="owner_label">
+                <property name="text">
+                 <string>Owner: </string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="owner_text">
+                <property name="text">
+                 <string>TextLabel</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="widget_5" native="true">
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <item>
+               <widget class="QWidget" name="widget_8" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout_6">
+                 <item>
+                  <widget class="QLabel" name="change_owner_label">
+                   <property name="text">
+                    <string>Change Owner: </string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="owner_type_combobox">
+                   <item>
+                    <property name="text">
+                     <string>select ...</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Person</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Team</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QPushButton" name="set_new_owner_BTN">
+                   <property name="text">
+                    <string>Set new owner</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Comments</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="QTreeWidget" name="treeWidget">
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="widget_10" native="true">
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <widget class="QPushButton" name="pushButton_3">
              <property name="text">
-              <string>Team</string>
+              <string>PushButton</string>
              </property>
-            </item>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="set_new_owner_BTN">
-            <property name="text">
-             <string>Set new owner</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_2">
+             <property name="text">
+              <string>PushButton</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton">
+             <property name="text">
+              <string>PushButton</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
     <item>
@@ -258,7 +321,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>786</width>
+     <width>798</width>
      <height>26</height>
     </rect>
    </property>

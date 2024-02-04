@@ -65,7 +65,26 @@ private slots:
     bool check_project_exsist_in_org(QString proj_name, QString org);
     void edit_project_in_org(QString proj_old_name,QString proj_new_name,QString org_name);
     void remove_project_from_org(QString proj_name, QString org);
-
+    void check_org_team_access(QString username,QString org_name,QString team_name);
+    void load_team_persons(QString team, QString org);
+    void check_org_project_access(QString username,QString org_name,QString proj_name);
+    void add_person_to_team(QString username,QString org_name,QString team_name);
+    void change_person_role_in_team(QString username,QString org_name,QString team_name);
+    void remove_person_from_team(QString username,QString org_name,QString team_name);
+    void load_project_persons(QString project, QString org);
+    void load_project_teams(QString project, QString org);
+    void load_project_tasks(QString project, QString org);
+    void add_person_to_project (QString user,QString project,QString org);
+    void remove_person_from_project(QString username,QString org_name,QString proj_name);
+    void change_person_role_in_project(QString username,QString org_name,QString proj_name);
+    void load_org_teams_in_project(QString org_name);
+    void add_team_to_project(QString team_name, QString project_name,QString org_name);
+    void remove_team_from_project(QString team_name, QString project_name,QString org_name);
+    void add_task_to_project(Task temp_task , QString proj , QString org);
+    void remove_task_from_project(QString taskname, QString project_name,QString org_name);
+    void edit_task_archive_in_project(QString taskname, QString project_name,QString org_name);
+    void edit_task_in_project(QString taskname, QString project_name,QString org_name);
+    void save_edited_task_in_project(Task temp_task, QString old_task_title, QString projname, QString org );
 
     void on_pushButton_clicked();
 

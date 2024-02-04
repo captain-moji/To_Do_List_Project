@@ -97,6 +97,28 @@ void ProjectsWindow::add_project_person(QString new_username)
 
 void ProjectsWindow::addNewProjectPerson(QString new_username)
 {
+    QString file_Path3 = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + this_org + "/ORG_PERSONS.json";
+    bool exsist = false;
+
+    QFile filex(file_Path3);
+    filex.open(QIODevice::ReadOnly);
+    QByteArray jsonDatax = filex.readAll();
+    filex.close();
+    QJsonDocument doc = QJsonDocument::fromJson(jsonDatax);
+    QJsonArray jsonArrayx = doc.array();
+    for (const auto& item : jsonArrayx) {
+        QJsonObject obj = item.toObject();
+        if (obj["username"].toString() == new_username)
+        {
+            exsist = true;
+            break;
+        }
+    }
+    if(exsist == false)
+    {
+        return;
+    }
+
     QString file_Path = QDir::currentPath() + "/APPDATA/ORGANIZATIONS/" + this_org + "/ORG_PERSONS.json";
     QFile file(file_Path);
     file.open(QIODevice::ReadOnly);
@@ -779,7 +801,6 @@ void ProjectsWindow::loadProjectTasks()
 }
 
 
-
 void ProjectsWindow::on_remove_task_BTN_clicked()
 {
 
@@ -838,7 +859,6 @@ void ProjectsWindow::removeTaskFromProject(QString task_name)
     file.close();
 }
 
-
 void ProjectsWindow::on_archive_unarchive_BTN_clicked()
 {
     QTreeWidgetItem *item = ui->project_tasks_tree_widget->currentItem();
@@ -851,7 +871,6 @@ void ProjectsWindow::on_archive_unarchive_BTN_clicked()
     else
     QMessageBox::warning(this, "Select a task", "select a task from the list!");
 }
-
 
 void ProjectsWindow::EditTaskArchive(QString task_title)
 {
@@ -886,7 +905,6 @@ void ProjectsWindow::EditTaskArchive(QString task_title)
     file.write(doc.toJson());
     file.close();
 }
-
 
 void ProjectsWindow::on_project_tasks_tree_widget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
@@ -925,13 +943,11 @@ void ProjectsWindow::on_project_tasks_tree_widget_itemDoubleClicked(QTreeWidgetI
     w->show();
 }
 
-
 void ProjectsWindow::edit_project_task(Task edited_task)
 {
     EditTaskInProject(ui->project_tasks_tree_widget->currentItem()->text(0) , edited_task);
     loadProjectTasks();
 }
-
 
 void ProjectsWindow::EditTaskInProject(QString old_task , Task edited_task)
 {
@@ -975,7 +991,6 @@ void ProjectsWindow::EditTaskInProject(QString old_task , Task edited_task)
     file.close();
 }
 
-
 void ProjectsWindow::search_task()
 {
     QString input = ui->search_task_line_edit->text();
@@ -1005,15 +1020,12 @@ void ProjectsWindow::search_task()
     }
 }
 
-
-
 void ProjectsWindow::on_search_task_line_edit_textChanged(const QString &arg1)
 {
     on_archived_checkbox_stateChanged(0);
     on_not_archived_checkbox_stateChanged(0);
     search_task();
 }
-
 
 void ProjectsWindow::on_archived_checkbox_stateChanged(int arg1)
 {

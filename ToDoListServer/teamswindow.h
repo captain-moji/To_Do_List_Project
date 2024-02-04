@@ -22,10 +22,14 @@ public:
     void removeTeamPerson(QString);
     void changeTeamPersonRole(QString);
     void changeOrgPersonRole(QString);
-private slots:
+
+public slots:
 
     void this_team_maker(QString);
     void this_org_maker(QString);
+
+private slots:
+
     void this_team_id_maker(QString);
     void add_team_person(QString);
     void on_teams_add_person_BTN_clicked();
